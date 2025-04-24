@@ -85,15 +85,15 @@
           enable = true; # enable kitty terminal
           configText = ""; # kitty config text
         };
-      };
+      }; */
       theme = {
         enable = true; # enable theme module
-        active = "Catppuccin Mocha"; # active theme name
+        active = "Decay Green"; # active theme name
         themes = [
-          "Catppuccin Mocha"
-          "Catppuccin Latte"
+          "Decay Green"
         ]; # default enabled themes, full list in https://github.com/richen604/hydenix/tree/main/hydenix/sources/themes
       };
+	/*
       waybar.enable = true; # enable waybar module
       wlogout.enable = true; # enable wlogout module
       xdg.enable = true; # enable xdg module
