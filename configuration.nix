@@ -1,126 +1,99 @@
+{ config, pkgs, lib, ... }:
 {
-  inputs,
-  ...
-}:
-let
-  # Package declaration
-  # ---------------------
-
-  pkgs = import inputs.hydenix.inputs.hydenix-nixpkgs {
-    inherit (inputs.hydenix.lib) system;
-    config.allowUnfree = true;
-    overlays = [
-      inputs.hydenix.lib.overlays
-      (final: prev: {
-        userPkgs = import inputs.nixpkgs {
-          config.allowUnfree = true;
-        };
-      })
-    ];
-  };
-in
-{
-
-  # Set pkgs for hydenix globally, any file that imports pkgs will use this
-  nixpkgs.pkgs = pkgs;
-
   imports = [
-    inputs.hydenix.inputs.home-manager.nixosModules.home-manager
     ./hardware-configuration.nix
-    inputs.hydenix.lib.nixOsModules
-    ./modules/system
+    ./homely-man.nix
+  ];
+  nixpkgs.config.allowUnfree = true;
+  environment.systemPackages = with pkgs; [
+    git # vc
+    grim # screenshot functionality
+    slurp # screenshot functionality
+    wl-clipboard # wl-copy and wl-paste for copy/paste from stdin / stdout
 
-    # === GPU-specific configurations ===
+    mako # notification system developed by swaywm maintainer
+    fish # good shell
+    fortune-kind # good fortunes
+    dwarf-fortress-packages.dwarf-fortress-full # fun
+    fastfetch # gotta be able to show off
 
-    /*
-      For drivers, we are leveraging nixos-hardware
-      Most common drivers are below, but you can see more options here: https://github.com/NixOS/nixos-hardware
-    */
+    zip # Archive tools
+    xz
+    unzip 
 
-    #! EDIT THIS SECTION
-    # For NVIDIA setups
-    # inputs.hydenix.inputs.nixos-hardware.nixosModules.common-gpu-nvidia
+    ripgrep # fast grep search
 
-    # For AMD setups
-    # inputs.hydenix.inputs.nixos-hardware.nixosModules.common-gpu-amd
+    cowsay # GNU utils
+    file
+    which
+    tree
+    gnused
+    gnutar
+    gawk
+    zstd
+    gnupg
 
-    # === CPU-specific configurations ===
-    # For AMD CPUs
-    # inputs.hydenix.inputs.nixos-hardware.nixosModules.common-cpu-amd
+    glow # markdown viewer
+    btop # hardware monitor
 
-    # For Intel CPUs
-    inputs.hydenix.inputs.nixos-hardware.nixosModules.common-cpu-intel
-
-    # === Other common modules ===
-    inputs.hydenix.inputs.nixos-hardware.nixosModules.common-pc
-    inputs.hydenix.inputs.nixos-hardware.nixosModules.common-pc-ssd
+    usbutils
+    home-manager # manage homes
   ];
 
-  home-manager = {
-    useGlobalPkgs = true;
-    useUserPackages = true;
-    extraSpecialArgs = {
-      inherit inputs;
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.systemd-boot.consoleMode = "auto";
+  boot.loader.efi.canTouchEfiVariables = true;
+
+  services.thermald.enable = true;
+  services.tlp = {
+    enable = true;
+    settings = {
+     	CPU_SCALING_GOVERNOR_ON_AC = "performance";
+	CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
+
+	CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
+	CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
+
+	CPU_MIN_PERF_ON_AC = 0;
+	CPU_MAX_PERF_ON_AC = 100;
+	CPU_MIN_PERF_ON_BAT = 0;
+	CPU_MAX_PERF_ON_BAT = 20;
+
+        #Optional helps save long term battery health
+        START_CHARGE_THRESH_BAT0 = 50; # 50 and below it starts to charge
+        STOP_CHARGE_THRESH_BAT0 = 80; # 80 and above it stops charging
     };
-
-    #! EDIT THIS USER (must match users defined below)
-    users."calvin" =
-      { ... }:
-      {
-        imports = [
-          inputs.hydenix.lib.homeModules
-          # Nix-index-database - for comma and command-not-found
-          inputs.nix-index-database.hmModules.nix-index
-          ./modules/hm
-        ];
-      };
   };
 
-  # IMPORTANT: Customize the following values to match your preferences
-  hydenix = {
-    enable = true; # Enable the Hydenix module
+  # Enable the gnome-keyring secrets vault. 
+  # Will be exposed through DBus to programs willing to store secrets.
+  services.gnome.gnome-keyring.enable = true;
 
-    #! EDIT THESE VALUES
-    hostname = "Thinker"; # Change to your preferred hostname
-    timezone = "America/Denver"; # Change to your timezone
-    locale = "en_CA.UTF-8"; # Change to your preferred locale
-
-    /*
-      Optionally edit the below values, or leave to use hydenix defaults
-      visit ./modules/hm/default.nix for more options
-
-      audio.enable = true; # enable audio module
-      boot = {
-        enable = true; # enable boot module
-        useSystemdBoot = true; # disable for GRUB
-        grubTheme = pkgs.hydenix.grub-retroboot; # or pkgs.hydenix.grub-pochita
-        grubExtraConfig = ""; # additional GRUB configuration
-        kernelPackages = pkgs.linuxPackages_zen; # default zen kernel
-      };
-      gaming.enable = true; # enable gaming module
-      hardware.enable = true; # enable hardware module
-      network.enable = true; # enable network module
-      nix.enable = true; # enable nix module
-      sddm = {
-        enable = true; # enable sddm module
-        theme = pkgs.hydenix.sddm-candy; # or pkgs.hydenix.sddm-corners
-      };
-      system.enable = true; # enable system module
-    */
+  # enable sway window manager
+  programs.sway = {
+    enable = true;
+    wrapperFeatures.gtk = true;
+    package = pkgs.swayfx; 
   };
 
-  #! EDIT THESE VALUES (must match users defined above)
+  programs.steam = {
+    enable = true;
+    remotePlay.openFirewall = true;
+    dedicatedServer.openFirewall = true;
+    localNetworkGameTransfers.openFirewall = true;
+  };
+
+  programs.fish.enable = true;
+
   users.users.calvin = {
-    isNormalUser = true; # Regular user account
-    initialPassword = "12345"; # Default password (CHANGE THIS after first login with passwd)
+    isNormalUser = true;
+    initialPassword = "12345";
     extraGroups = [
-      "wheel" # For sudo access
-      "networkmanager" # For network management
-      "video" # For display/graphics access
-      # Add other groups as needed
+      "wheel"
+      "networkmanager"
+      "video"
     ];
-    shell = pkgs.zsh; # Change if you prefer a different shell
-  };
-
+    shell = pkgs.fish;
+  };  
   system.stateVersion = "25.05";
 }
