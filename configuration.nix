@@ -1,4 +1,10 @@
-{ config, pkgs, lib,kickstart-nix-nvim, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  kickstart-nix-nvim,
+  ...
+}:
 {
   imports = [
     ./hardware-configuration.nix
@@ -6,7 +12,7 @@
   ];
   nixpkgs.config.allowUnfree = true;
   environment.systemPackages = with pkgs; [
-    nvim-pkg # kickstart neovim
+    # nvim-pkg # kickstart neovim  # TODO make this actually work
     git # vc
     grim # screenshot functionality
     slurp # screenshot functionality
@@ -23,7 +29,7 @@
 
     zip # Archive tools
     xz
-    unzip 
+    unzip
 
     ripgrep # fast grep search
 
@@ -42,6 +48,9 @@
 
     usbutils
     home-manager # manage homes
+
+    swaybg # set background
+    nixfmt-rfc-style # nix formatter
   ];
   networking.hostName = "Thinker";
   networking.networkmanager.enable = true;
@@ -53,24 +62,24 @@
   services.tlp = {
     enable = true;
     settings = {
-     	CPU_SCALING_GOVERNOR_ON_AC = "performance";
-	CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
+      CPU_SCALING_GOVERNOR_ON_AC = "performance";
+      CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
 
-	CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
-	CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
+      CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
+      CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
 
-	CPU_MIN_PERF_ON_AC = 0;
-	CPU_MAX_PERF_ON_AC = 100;
-	CPU_MIN_PERF_ON_BAT = 0;
-	CPU_MAX_PERF_ON_BAT = 20;
+      CPU_MIN_PERF_ON_AC = 0;
+      CPU_MAX_PERF_ON_AC = 100;
+      CPU_MIN_PERF_ON_BAT = 0;
+      CPU_MAX_PERF_ON_BAT = 20;
 
-        #Optional helps save long term battery health
-        START_CHARGE_THRESH_BAT0 = 50; # 50 and below it starts to charge
-        STOP_CHARGE_THRESH_BAT0 = 80; # 80 and above it stops charging
+      #Optional helps save long term battery health
+      START_CHARGE_THRESH_BAT0 = 50; # 50 and below it starts to charge
+      STOP_CHARGE_THRESH_BAT0 = 80; # 80 and above it stops charging
     };
   };
 
-  # Enable the gnome-keyring secrets vault. 
+  # Enable the gnome-keyring secrets vault.
   # Will be exposed through DBus to programs willing to store secrets.
   services.gnome.gnome-keyring.enable = true;
 
@@ -78,7 +87,7 @@
   programs.sway = {
     enable = true;
     wrapperFeatures.gtk = true;
-    package = pkgs.swayfx; 
+    package = pkgs.swayfx;
   };
 
   programs.steam = {
@@ -103,7 +112,7 @@
       "video"
     ];
     shell = pkgs.fish;
-  };  
+  };
 
   system.stateVersion = "25.05";
 }

@@ -6,7 +6,7 @@
     };
     # User's nixpkgs - for user packages
     nixpkgs = {
-      url ="github:nixos/nixpkgs/nixos-unstable";
+      url = "github:nixos/nixpkgs/nixos-unstable";
     };
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
@@ -17,20 +17,26 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
-  outputs = {self, nixpkgs,kickstart-nix-nvim , ... }@inputs:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      kickstart-nix-nvim,
+      ...
+    }@inputs:
     let
-	    HOSTNAME = "Thinker";
-         nixpkgs.overlays = [kickstart-nix-nvim.overlays.default];
-	 config = inputs.nixpkgs.lib.nixosSystem {
-		      system = "x86_64-linux";
-		      modules = [
-			./configuration.nix
-		      ];
-		    };
+      HOSTNAME = "Thinker";
+      nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ];
+      config = inputs.nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ./configuration.nix
+        ];
+      };
     in
-{
-         nixpkgs.overlays = [kickstart-nix-nvim.overlays.default];
-    nixosConfigurations.nixos = config;
-    nixosConfigurations.Thinker = config;
-};
-  }
+    {
+      nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ];
+      nixosConfigurations.nixos = config;
+      nixosConfigurations.Thinker = config;
+    };
+}
