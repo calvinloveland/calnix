@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib,kickstart-nix-nvim, ... }:
 {
   imports = [
     ./hardware-configuration.nix
@@ -6,6 +6,7 @@
   ];
   nixpkgs.config.allowUnfree = true;
   environment.systemPackages = with pkgs; [
+    nvim-pkg # kickstart neovim
     git # vc
     grim # screenshot functionality
     slurp # screenshot functionality
@@ -42,6 +43,7 @@
     usbutils
     home-manager # manage homes
   ];
+  networking.hostName = "Thinker";
   networking.networkmanager.enable = true;
   boot.loader.systemd-boot.enable = true;
   boot.loader.systemd-boot.consoleMode = "auto";
@@ -88,6 +90,10 @@
 
   programs.fish.enable = true;
 
+  programs.neovim = {
+    enable = true;
+  };
+
   users.users.calvin = {
     isNormalUser = true;
     initialPassword = "12345";
@@ -98,5 +104,6 @@
     ];
     shell = pkgs.fish;
   };  
+
   system.stateVersion = "25.05";
 }
