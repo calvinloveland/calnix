@@ -10,12 +10,15 @@
     grim # screenshot functionality
     slurp # screenshot functionality
     wl-clipboard # wl-copy and wl-paste for copy/paste from stdin / stdout
+    rofi # launcher
 
     mako # notification system developed by swaywm maintainer
+    alacritty # terminal emulator
     fish # good shell
     fortune-kind # good fortunes
     dwarf-fortress-packages.dwarf-fortress-full # fun
     fastfetch # gotta be able to show off
+    firefox # browser
 
     zip # Archive tools
     xz
@@ -39,11 +42,11 @@
     usbutils
     home-manager # manage homes
   ];
-
+  networking.networkmanager.enable = true;
   boot.loader.systemd-boot.enable = true;
   boot.loader.systemd-boot.consoleMode = "auto";
   boot.loader.efi.canTouchEfiVariables = true;
-
+  security.polkit.enable = true;
   services.thermald.enable = true;
   services.tlp = {
     enable = true;

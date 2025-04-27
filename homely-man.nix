@@ -21,7 +21,22 @@ in
 	    userName = "Calvin Loveland";
 	    userEmail = "calvinloveland@gmail.com";
 	  }; 
-  
+    
+
+      wayland.windowManager.sway = {
+	    enable = true;
+	    wrapperFeatures.gtk = true; # Fixes common issues with GTK 3 apps
+	    config = rec {
+	      modifier = "Mod4";
+	      terminal = "alacritty"; 
+	      startup = [
+		# Launch Fish on start
+		{command = "fish";}
+	      ];
+	    };
+  };
+
+ 
     # The state version is required and should stay at the version you
     # originally installed.
     home.stateVersion = "25.05";
