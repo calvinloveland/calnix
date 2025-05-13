@@ -51,13 +51,28 @@
 
     swaybg # set background
     nixfmt-rfc-style # nix formatter
+    vscode # for coding
+    google-chrome # Google has their hooks in me
+    pavucontrol # controls volume
   ];
   networking.hostName = "Thinker";
   networking.networkmanager.enable = true;
   boot.loader.systemd-boot.enable = true;
   boot.loader.systemd-boot.consoleMode = "auto";
   boot.loader.efi.canTouchEfiVariables = true;
+
+  virtualisation.docker = {
+	enable = true;
+	rootless = {
+		enable = true;
+		setSocketVariable = true;
+	};
+  };
+
   security.polkit.enable = true;
+  security.pam.services.swaylock = {}; # Enable pam for swaylock
+  security.rtkit.enable = true;
+
   services.thermald.enable = true;
   services.tlp = {
     enable = true;
@@ -90,6 +105,12 @@
     package = pkgs.swayfx;
   };
 
+  services.pipewire = {
+    enable = true; # if not already enabled
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+  };
   programs.steam = {
     enable = true;
     remotePlay.openFirewall = true;
@@ -98,6 +119,7 @@
   };
 
   programs.fish.enable = true;
+  programs.ssh.startAgent = true;
 
   programs.neovim = {
     enable = true;
@@ -110,6 +132,7 @@
       "wheel"
       "networkmanager"
       "video"
+      "docker"
     ];
     shell = pkgs.fish;
   };

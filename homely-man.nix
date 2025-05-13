@@ -32,6 +32,16 @@ in
         enable = true;
         userName = "Calvin Loveland";
         userEmail = "calvinloveland@gmail.com";
+	extraConfig.safe.directory = "*";
+      };
+
+      programs.neovim = {
+        enable=true;
+	vimAlias = true;
+	viAlias = true;
+      };
+      programs.swaylock = {
+	enable=true;
       };
 
       wayland.windowManager.sway = {
