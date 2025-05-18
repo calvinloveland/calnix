@@ -8,8 +8,8 @@
 let
   home-manager = (
     builtins.fetchTarball {
-      url = "https://github.com/nix-community/home-manager/archive/release-25.05.tar.gz";
-      sha256 = "1qsvg11b5d05z2gvxq2pp6xfg3gpcd363id0h52sicikx3vai93s";
+      url = "https://github.com/nix-community/home-manager/archive/release-24.11.tar.gz";
+      sha256 = "03z2v28ac11bisxf9n73brrjp85878wapqs9853p0f73vx8a5jfw";
     }
   );
 in

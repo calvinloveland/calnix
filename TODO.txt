@@ -1,0 +1,2 @@
+[ ] Display power usage / CPU usage / in waybar
+[ ] Set default workspace to 1 instead of 0

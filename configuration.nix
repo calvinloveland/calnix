@@ -56,6 +56,8 @@
     vscode # for coding
     google-chrome # Google has their hooks in me
     pavucontrol # controls volume
+
+    wget # w getting stuff
   ];
   nixpkgs.config.allowUnfree = true;
   networking.hostName = "Thinker";
@@ -82,7 +84,7 @@
     enable = true;
   };
 
-  services.logind.lidSwitch = "suspend-then-hibernate";
+  # services.logind.lidSwitch = "suspend-then-hibernate"; # This does not do what I want it to
   services.thermald.enable = true;
   services.pipewire = {
     enable = true; # if not already enabled
@@ -90,7 +92,8 @@
     alsa.support32Bit = true;
     pulse.enable = true;
   };
-  services.automatic-timezoned.enable = true;
+  services.automatic-timezoned.enable = true; # Does nothing >:(
+  services.tzupdate.enable = true; # Also does nothing >:(
   services.tlp = {
     enable = true;
     settings = {
@@ -121,6 +124,8 @@
   systemd.sleep.extraConfig = ''
     	    HibernateDelaySec=60min
     	  '';
+
+  time.timeZone = "America/Denver";
 
   users.users.calvin = {
     isNormalUser = true;
