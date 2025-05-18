@@ -10,7 +10,9 @@
     ./hardware-configuration.nix
     ./homely-man.nix
   ];
-  nixpkgs.config.allowUnfree = true;
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.systemd-boot.consoleMode = "auto";
+  boot.loader.efi.canTouchEfiVariables = true;
   environment.systemPackages = with pkgs; [
     # nvim-pkg # kickstart neovim  # TODO make this actually work
     git # vc
@@ -55,25 +57,40 @@
     google-chrome # Google has their hooks in me
     pavucontrol # controls volume
   ];
+  nixpkgs.config.allowUnfree = true;
   networking.hostName = "Thinker";
   networking.networkmanager.enable = true;
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.systemd-boot.consoleMode = "auto";
-  boot.loader.efi.canTouchEfiVariables = true;
 
-  virtualisation.docker = {
-	enable = true;
-	rootless = {
-		enable = true;
-		setSocketVariable = true;
-	};
+  # enable sway window manager
+  programs.sway = {
+    enable = true;
+    wrapperFeatures.gtk = true;
+    package = pkgs.swayfx;
   };
 
-  security.polkit.enable = true;
-  security.pam.services.swaylock = {}; # Enable pam for swaylock
-  security.rtkit.enable = true;
+  programs.steam = {
+    enable = true;
+    remotePlay.openFirewall = true;
+    dedicatedServer.openFirewall = true;
+    localNetworkGameTransfers.openFirewall = true;
+  };
 
+  programs.fish.enable = true;
+  programs.ssh.startAgent = true;
+
+  programs.neovim = {
+    enable = true;
+  };
+
+  services.logind.lidSwitch = "suspend-then-hibernate";
   services.thermald.enable = true;
+  services.pipewire = {
+    enable = true; # if not already enabled
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+  };
+  services.automatic-timezoned.enable = true;
   services.tlp = {
     enable = true;
     settings = {
@@ -97,33 +114,13 @@
   # Enable the gnome-keyring secrets vault.
   # Will be exposed through DBus to programs willing to store secrets.
   services.gnome.gnome-keyring.enable = true;
-
-  # enable sway window manager
-  programs.sway = {
-    enable = true;
-    wrapperFeatures.gtk = true;
-    package = pkgs.swayfx;
-  };
-
-  services.pipewire = {
-    enable = true; # if not already enabled
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-  };
-  programs.steam = {
-    enable = true;
-    remotePlay.openFirewall = true;
-    dedicatedServer.openFirewall = true;
-    localNetworkGameTransfers.openFirewall = true;
-  };
-
-  programs.fish.enable = true;
-  programs.ssh.startAgent = true;
-
-  programs.neovim = {
-    enable = true;
-  };
+  security.pam.services.sway.enableGnomeKeyring = true;
+  security.polkit.enable = true;
+  security.pam.services.swaylock = { }; # Enable pam for swaylock
+  security.rtkit.enable = true;
+  systemd.sleep.extraConfig = ''
+    	    HibernateDelaySec=60min
+    	  '';
 
   users.users.calvin = {
     isNormalUser = true;
@@ -135,6 +132,13 @@
       "docker"
     ];
     shell = pkgs.fish;
+  };
+  virtualisation.docker = {
+    enable = true;
+    rootless = {
+      enable = true;
+      setSocketVariable = true;
+    };
   };
 
   system.stateVersion = "25.05";
