@@ -1,1 +1,1 @@
-nixos-rebuild switch --use-remote-sudo --flake . 
+sudo nixos-rebuild switch --flake . 
