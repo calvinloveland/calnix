@@ -10,12 +10,14 @@
     ./hardware-configuration.nix
     ./homely-man.nix
   ];
+  boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.loader.systemd-boot.enable = true;
   boot.loader.systemd-boot.consoleMode = "auto";
   boot.loader.efi.canTouchEfiVariables = true;
   environment.systemPackages = with pkgs; [
     # nvim-pkg # kickstart neovim  # TODO make this actually work
     git # vc
+    gh # github cli w/ copilot
     grim # screenshot functionality
     slurp # screenshot functionality
     wl-clipboard # wl-copy and wl-paste for copy/paste from stdin / stdout
@@ -58,6 +60,7 @@
     pavucontrol # controls volume
 
     wget # w getting stuff
+    wluma # backlight control
   ];
   nixpkgs.config.allowUnfree = true;
   networking.hostName = "Thinker";
@@ -92,8 +95,17 @@
     alsa.support32Bit = true;
     pulse.enable = true;
   };
-  services.automatic-timezoned.enable = true; # Does nothing >:(
-  services.tzupdate.enable = true; # Also does nothing >:(
+  # services.automatic-timezoned.enable = true; # Does nothing >:(
+  # services.tzupdate.enable = true; # Also does nothing >:(
+  # time.timeZone = "America/Denver"; # Remove this in hopes tzupdate works
+  services.tzupdate = {
+    enable = true;
+  };
+  systemd.timers."tzupdate.timer".timerConfig = {
+    OnBootSec = "5min";
+    OnUnitActiveSec = "1d";
+  };
+  # services.geoclue.enable = true; # not real, AI made this up
   services.tlp = {
     enable = true;
     settings = {
@@ -124,8 +136,6 @@
   systemd.sleep.extraConfig = ''
     	    HibernateDelaySec=60min
     	  '';
-
-  time.timeZone = "America/Denver";
 
   users.users.calvin = {
     isNormalUser = true;
