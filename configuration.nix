@@ -66,12 +66,7 @@
   networking.hostName = "Thinker";
   networking.networkmanager.enable = true;
 
-  # enable sway window manager
-  programs.sway = {
-    enable = true;
-    wrapperFeatures.gtk = true;
-    package = pkgs.swayfx;
-  };
+  # enable sway window manager via Home Manager user config in homely-man.nix
 
   programs.steam = {
     enable = true;

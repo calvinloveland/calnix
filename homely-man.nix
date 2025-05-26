@@ -5,28 +5,19 @@
   ...
 }:
 
-let
-  home-manager = (
-    builtins.fetchTarball {
-      url = "https://github.com/nix-community/home-manager/archive/release-24.11.tar.gz";
-      sha256 = "03z2v28ac11bisxf9n73brrjp85878wapqs9853p0f73vx8a5jfw";
-    }
-  );
-in
 {
-  imports = [
-    (import "${home-manager}/nixos")
-  ];
-
+  # Ensure calvin user exists
   users.users.calvin.isNormalUser = true;
+
+  # Home Manager user configuration
   home-manager.users.calvin =
     { pkgs, ... }:
     {
       home.packages = [
         pkgs.atool
         pkgs.httpie
+        pkgs.light
       ];
-      programs.home-manager.enable = true;
 
       programs.git = {
         enable = true;
@@ -40,25 +31,30 @@ in
         vimAlias = true;
         viAlias = true;
       };
-      programs.swaylock = {
-        enable = true;
-      };
+
+      programs.swaylock.enable = true;
 
       wayland.windowManager.sway = {
         enable = true;
-        wrapperFeatures.gtk = true; # Fixes common issues with GTK 3 apps
         config = rec {
           modifier = "Mod4";
           terminal = "alacritty";
+          keybindings = lib.mkOptionDefault {
+            # Volume controls (PipeWire)
+            "XF86AudioRaiseVolume" = "exec wpctl set-volume @DEFAULT_SINK@ 5%+";
+            "XF86AudioLowerVolume" = "exec wpctl set-volume @DEFAULT_SINK@ 5%-";
+            "XF86AudioMute" = "exec wpctl set-mute @DEFAULT_SINK@ toggle";
+
+            # Brightness controls (using wluma)
+            "XF86MonBrightnessUp" = "exec wluma up";
+            "XF86MonBrightnessDown" = "exec wluma down";
+          };
           startup = [
-            # Launch swaybg
             { command = "swaybg -o '*' -i ~/Pictures/background.jpg"; }
           ];
         };
       };
 
-      # The state version is required and should stay at the version you
-      # originally installed.
       home.stateVersion = "25.05";
     };
 }
