@@ -16,7 +16,7 @@
       home.packages = [
         pkgs.atool
         pkgs.httpie
-        pkgs.light
+        pkgs.brightnessctl
       ];
 
       programs.git = {
@@ -45,9 +45,9 @@
             "XF86AudioLowerVolume" = "exec wpctl set-volume @DEFAULT_SINK@ 5%-";
             "XF86AudioMute" = "exec wpctl set-mute @DEFAULT_SINK@ toggle";
 
-            # Brightness controls (using wluma)
-            "XF86MonBrightnessUp" = "exec wluma up";
-            "XF86MonBrightnessDown" = "exec wluma down";
+            # Brightness controls (using brightnessctl)
+            "XF86MonBrightnessUp" = "exec brightnessctl set +10%";
+            "XF86MonBrightnessDown" = "exec brightnessctl set 10%-";
           };
           startup = [
             { command = "swaybg -o '*' -i ~/Pictures/background.jpg"; }
