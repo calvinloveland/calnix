@@ -14,7 +14,25 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.systemd-boot.consoleMode = "auto";
   boot.loader.efi.canTouchEfiVariables = true;
+
+  # Enable Bluetooth
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+    settings = {
+      General = {
+        Enable = "Source,Sink,Media,Socket";
+        Experimental = true;
+      };
+    };
+  };
+
   environment.systemPackages = with pkgs; [
+    # Bluetooth packages
+    bluez
+    bluez-tools
+    blueberry  # Bluetooth manager GUI
+
     # nvim-pkg # kickstart neovim  # TODO make this actually work
     git # vc
     gh # github cli w/ copilot
@@ -84,11 +102,17 @@
 
   # services.logind.lidSwitch = "suspend-then-hibernate"; # This does not do what I want it to
   services.thermald.enable = true;
+
+  # Enable Bluetooth service
+  services.blueman.enable = true;
+
   services.pipewire = {
     enable = true; # if not already enabled
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    # Enable Bluetooth audio support
+    wireplumber.enable = true;
   };
   # services.automatic-timezoned.enable = true; # Does nothing >:(
   # services.tzupdate.enable = true; # Also does nothing >:(

@@ -17,6 +17,9 @@
         pkgs.atool
         pkgs.httpie
         pkgs.brightnessctl
+        # Bluetooth utilities
+        pkgs.bluetuith  # Terminal-based Bluetooth manager
+        pkgs.bluez-alsa # ALSA plugin for Bluetooth audio
       ];
 
       programs.git = {
@@ -48,6 +51,10 @@
             # Brightness controls (using brightnessctl)
             "XF86MonBrightnessUp" = "exec brightnessctl set +10%";
             "XF86MonBrightnessDown" = "exec brightnessctl set 10%-";
+            
+            # Bluetooth controls
+            "${modifier}+b" = "exec blueberry";  # Open Bluetooth manager GUI
+            "${modifier}+Shift+b" = "exec ${terminal} -e bluetuith";  # Open terminal Bluetooth manager
           };
           startup = [
             { command = "swaybg -o '*' -i ~/Pictures/background.jpg"; }
