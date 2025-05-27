@@ -9,6 +9,7 @@
   imports = [
     ./hardware-configuration.nix
     ./homely-man.nix
+    ./python-dev.nix
   ];
   boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.loader.systemd-boot.enable = true;
