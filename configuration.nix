@@ -11,6 +11,10 @@
     ./homely-man.nix
     ./python-dev.nix
   ];
+
+  # Home Manager configuration
+  home-manager.backupFileExtension = "backup";
+
   boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.loader.systemd-boot.enable = true;
   boot.loader.systemd-boot.consoleMode = "auto";
@@ -29,6 +33,14 @@
   };
 
   environment.systemPackages = with pkgs; [
+    # Fonts for proper terminal display
+    jetbrains-mono
+    font-awesome  # For icons in status bars
+
+    # Color scheme generation from wallpapers
+    pywal
+    imagemagick  # Required for pywal color generation
+
     # Bluetooth packages
     bluez
     bluez-tools
