@@ -13,6 +13,9 @@
   home-manager.users.calvin =
     { pkgs, ... }:
     {
+      # Allow unfree packages for this user
+      nixpkgs.config.allowUnfree = true;
+      
       home.packages = [
         pkgs.atool
         pkgs.httpie
@@ -20,6 +23,8 @@
         # Bluetooth utilities
         pkgs.bluetuith  # Terminal-based Bluetooth manager
         pkgs.bluez-alsa # ALSA plugin for Bluetooth audio
+        # Development tools
+        pkgs.vscode  # Visual Studio Code editor
       ];
 
       programs.fish = {
@@ -30,9 +35,12 @@
             cat ~/.cache/wal/sequences
           end
           
-          # To add support for TTYs this line can be optionally added
-          if test -f ~/.cache/wal/colors-tty.sh
-            source ~/.cache/wal/colors-tty.sh
+          # For TTY support, check if we're in a Linux console and apply colors
+          if test "$TERM" = "linux"
+            if test -f ~/.cache/wal/colors-tty.sh
+              # Convert the bash script to fish-compatible commands
+              grep "printf" ~/.cache/wal/colors-tty.sh | sed 's/printf/printf/' | source
+            end
           end
         '';
       };
@@ -58,28 +66,30 @@
         settings = {
           font = {
             normal = {
-              family = "JetBrains Mono";
+              family = "Liberation Mono";
               style = "Regular";
             };
             bold = {
-              family = "JetBrains Mono";
+              family = "Liberation Mono";
               style = "Bold";
             };
             italic = {
-              family = "JetBrains Mono";
+              family = "Liberation Mono";
               style = "Italic";
             };
-            size = 12.0;
+            size = 11.0;
           };
           window = {
             padding = {
-              x = 10;
-              y = 10;
+              x = 6;
+              y = 6;
             };
             opacity = 0.95;
           };
-          # Import pywal colors
-          import = [ "~/.cache/wal/colors-alacritty.yml" ];
+          # Use the new general.import format instead of deprecated import
+          general = {
+            import = [ "~/.cache/wal/colors-alacritty.yml" ];
+          };
         };
       };
 
@@ -129,8 +139,8 @@
           
           # Gaps configuration
           gaps = {
-            inner = 10;
-            outer = 5;
+            inner = 2;
+            outer = 1;
           };
 
           keybindings = lib.mkOptionDefault {
@@ -141,7 +151,7 @@
 
             # Brightness controls (using brightnessctl)
             "XF86MonBrightnessUp" = "exec brightnessctl set +10%";
-            "XF86MonBrightnessDown" = "exec brightnessctl set 10%-";
+            "XF86MonBrightnessDown" = "exec brightnessctl set 1";
             
             # Bluetooth controls
             "${modifier}+b" = "exec blueberry";  # Open Bluetooth manager GUI

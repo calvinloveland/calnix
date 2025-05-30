@@ -34,7 +34,8 @@
 
   environment.systemPackages = with pkgs; [
     # Fonts for proper terminal display
-    jetbrains-mono
+    dejavu_fonts  # Includes DejaVu Sans Mono
+    liberation_ttf  # Liberation Mono - excellent terminal font
     font-awesome  # For icons in status bars
 
     # Color scheme generation from wallpapers
@@ -86,7 +87,6 @@
 
     swaybg # set background
     nixfmt-rfc-style # nix formatter
-    vscode # for coding
     google-chrome # Google has their hooks in me
     pavucontrol # controls volume
 
