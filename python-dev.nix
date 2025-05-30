@@ -9,6 +9,7 @@
     python3Packages.setuptools
     python3Packages.wheel
     poetry  # Use top-level poetry package
+    uv      # Fast Python package installer and resolver
 
     # Development tools
     python3Packages.black  # code formatter

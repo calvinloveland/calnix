@@ -20,6 +20,8 @@
         pkgs.atool
         pkgs.httpie
         pkgs.brightnessctl
+        # Fonts
+        pkgs.fira-code  # Fira Code font with ligatures
         # Bluetooth utilities
         pkgs.bluetuith  # Terminal-based Bluetooth manager
         pkgs.bluez-alsa # ALSA plugin for Bluetooth audio
@@ -64,27 +66,23 @@
       programs.alacritty = {
         enable = true;
         settings = {
+          window = {
+            opacity = 0.95;
+          };
           font = {
             normal = {
-              family = "Liberation Mono";
+              family = "Fira Code";
               style = "Regular";
             };
             bold = {
-              family = "Liberation Mono";
+              family = "Fira Code";
               style = "Bold";
             };
             italic = {
-              family = "Liberation Mono";
+              family = "Fira Code";
               style = "Italic";
             };
-            size = 11.0;
-          };
-          window = {
-            padding = {
-              x = 6;
-              y = 6;
-            };
-            opacity = 0.95;
+            size = 12;
           };
           # Use the new general.import format instead of deprecated import
           general = {
