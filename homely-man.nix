@@ -20,6 +20,8 @@
         pkgs.atool
         pkgs.httpie
         pkgs.brightnessctl
+        # Browsers
+        pkgs.google-chrome
         # Fonts
         pkgs.fira-code  # Fira Code font with ligatures
         # Bluetooth utilities
@@ -29,6 +31,18 @@
         pkgs.vscode  # Visual Studio Code editor
         pkgs.kitty  # Kitty terminal emulator
       ];
+
+      # Set default applications
+      xdg.mimeApps = {
+        enable = true;
+        defaultApplications = {
+          "text/html" = "google-chrome.desktop";
+          "x-scheme-handler/http" = "google-chrome.desktop";
+          "x-scheme-handler/https" = "google-chrome.desktop";
+          "x-scheme-handler/about" = "google-chrome.desktop";
+          "x-scheme-handler/unknown" = "google-chrome.desktop";
+        };
+      };
 
       programs.fish = {
         enable = true;
@@ -166,6 +180,15 @@
             { command = "wal -R"; }  # Restore last pywal color scheme
             { command = "~/.config/sway/apply-colors.sh"; }  # Apply colors to Sway
             { command = "swaybg -o '*' -i ~/Pictures/background.jpg"; }
+            
+            # Auto-start applications in specific workspaces
+            { command = "swaymsg 'workspace 1; exec code'"; }  # VS Code in workspace 1
+            { command = "swaymsg 'workspace 2; exec xdg-open http://google.com'"; }  # Default browser in workspace 2
+            { command = "swaymsg 'workspace 3; exec kitty'"; }  # Terminal in workspace 3
+            { command = "swaymsg 'workspace 4; exec steam'"; }  # Steam in workspace 4
+            
+            # Return to workspace 1 after starting applications
+            { command = "swaymsg 'workspace 1'"; }
           ];
         };
         

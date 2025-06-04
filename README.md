@@ -1,79 +1,116 @@
-# Hydenix Template
+# Calnix - Calvin's NixOS Configuration
 
-Welcome to the Hydenix template!
+A personal NixOS configuration featuring Sway window manager, Home Manager, and a modern development environment.
 
-This template is designed to help you get started with Hydenix. It includes a basic configuration for Hydenix and some common modules.
+## Overview
 
-If you just templated this flake, you can follow these steps to get started:
+This is a flake-based NixOS configuration that provides:
 
-1. edit `configuration.nix` with your preferences for hydenix
-   - options needing to be changed are marked with `! EDIT`
-   - (optional) in your template flake folder, review both `./configuration.nix` and `./modules/hm/default.nix` for more options
-2. run `sudo nixos-generate-config --show-hardware-config > hardware-configuration.nix`
-3. `git init && git add .` (flakes have to be managed via git)
-4. run any of the packages in your new `flake.nix`
-    - for rebuild, use `sudo nixos-rebuild switch --flake .`
-5. DON'T FORGET: change your password for all users with `passwd` from initialPassword set in `configuration.nix`
+- **Window Manager**: Sway (Wayland compositor)
+- **Terminal**: Kitty with Fira Code font
+- **Shell**: Fish shell
+- **Editor**: Neovim and VS Code
+- **Browser**: Google Chrome
+- **Color Scheme**: Dynamic theming with pywal
+- **Package Management**: Nix flakes with Home Manager
 
-NOTE: After launching hydenix, you can run `hyde-shell reload` to generate cache for remaining themes if you want.
+## Quick Start
 
-All module options are documented [here](https://github.com/richen604/hydenix/blob/main/docs/faq.md#What-are-the-module-options).
+1. **Clone and initialize**:
+   ```bash
+   git clone <this-repo> /etc/nixos
+   cd /etc/nixos
+   ```
 
-Other than that, this is your own nixos configuration. You can do whatever you want with it.
-Add modules, change packages, add flakes, even disable hydenix and try something else!
+2. **Generate hardware configuration**:
+   ```bash
+   sudo nixos-generate-config --show-hardware-config > hardware-configuration.nix
+   ```
 
-If you have any questions, please refer to the [FAQ](https://github.com/richen604/hydenix/blob/main/docs/faq.md) or [Hydenix README](https://github.com/richen604/hydenix/blob/main/README.md).
+3. **Build and switch**:
+   ```bash
+   sudo nixos-rebuild switch --flake .
+   ```
 
-You can also reach out to me on the [Hyde Discord](https://discord.gg/AYbJ9MJez7) or [Hydenix GitHub Discussions](https://github.com/richen604/hydenix/discussions).
+4. **Set up wallpaper** (optional):
+   ```bash
+   mkdir -p ~/Pictures
+   # Place a wallpaper image at ~/Pictures/background.jpg
+   ```
 
-## Upgrading
+## Key Features
 
-Hydenix can be upgraded, downgraded, or version locked easy.
-in your template flake folder, update hydenix to main using
+### Sway Window Manager
+- Custom keybindings for brightness, volume, and Bluetooth
+- Dynamic color theming with pywal integration
+- Workspace-specific application launching
+- Window gaps and borders configured
 
-```bash
-nix flake update hydenix
-```
+### Development Environment
+- VS Code with extensions
+- Neovim with vim/vi aliases
+- Git configured with user details
+- Kitty terminal with ligature support
 
-or define a specific version in your `flake.nix` template
+### Color Theming
+- **Mod4+w**: Generate colors from current wallpaper
+- **Mod4+Shift+w**: Choose wallpaper with file picker
+- Automatic color application to Sway, Kitty, and other applications
+
+### Default Applications
+- All web content opens in Google Chrome
+- Terminal applications use Kitty
+- Text editing with Neovim
+
+## File Structure
+
+- `flake.nix` - Main flake configuration and inputs
+- `configuration.nix` - System-wide NixOS configuration
+- `hardware-configuration.nix` - Hardware-specific settings
+- `homely-man.nix` - Home Manager user configuration
+- `python-dev.nix` - Python development environment
+- `rebuild.sh` - Convenience script for rebuilding
+
+## Customization
+
+### Adding Packages
+Edit the `home.packages` list in `homely-man.nix`:
 
 ```nix
-inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    hydenix = {
-      # Available inputs:
-      # Main: github:richen604/hydenix
-      # Dev: github:richen604/hydenix/dev 
-      # Commit: github:richen604/hydenix/<commit-hash>
-      # Version: github:richen604/hydenix/v1.0.0
-      url = "github:richen604/hydenix";
-    };
-  };
+home.packages = [
+  # Add your packages here
+  pkgs.firefox
+  pkgs.discord
+];
 ```
 
-run `nix flake update hydenix` again to load the update, then rebuild your system to apply the changes
+### Modifying Sway Config
+The Sway configuration is in `homely-man.nix` under `wayland.windowManager.sway.config`.
 
-## When to Upgrade
+### Changing Keybindings
+Keybindings are defined in the `keybindings` section of the Sway configuration.
 
-```mermaid
-graph TD
-    A[v2.3.1] --> B[MAJOR]
-    A --> C[MINOR]
-    A --> D[PATCH]
-    B --> E[Breaking Changes<br>Review Release Notes for API Changes]
-    C --> F[New Features<br>Safe to Update]
-    D --> G[Bug Fixes<br>Safe to Update]
+## Rebuilding
 
-    style A fill:#c79bf0,stroke:#ebbcba,stroke-width:2px,color:#000
-    style B fill:#ebbcba,stroke:#c79bf0,stroke-width:2px,color:#000
-    style C fill:#ebbcba,stroke:#c79bf0,stroke-width:2px,color:#000
-    style D fill:#ebbcba,stroke:#c79bf0,stroke-width:2px,color:#000
-    style E fill:#f6f6f6,stroke:#c79bf0,stroke-width:2px,color:#000
-    style F fill:#f6f6f6,stroke:#c79bf0,stroke-width:2px,color:#000
-    style G fill:#f6f6f6,stroke:#c79bf0,stroke-width:2px,color:#000
+Use the provided script:
+```bash
+./rebuild.sh
 ```
 
-- **Always review [release notes](https://github.com/richen604/hydenix/releases) for major updates (API changes)**
-- Keep up with patches for stability
-- Update to minor versions for new features
-  
+Or manually:
+```bash
+sudo nixos-rebuild switch --flake .
+```
+
+## Troubleshooting
+
+### Pywal Colors Not Working
+Ensure you have a wallpaper at `~/Pictures/background.jpg` and run:
+```bash
+wal -i ~/Pictures/background.jpg
+swaymsg reload
+```
+
+### Brightness Controls Not Working
+Make sure your user is in the appropriate groups for hardware access.
+
