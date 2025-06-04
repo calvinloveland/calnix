@@ -156,6 +156,14 @@
             outer = 1;
           };
 
+          # Assign applications to specific workspaces
+          assigns = {
+            "1" = [{ class = "Code"; }];  # VS Code uses class "Code"
+            "2" = [{ class = "Google-chrome"; } { class = "Chromium"; } { class = "chrome"; }];
+            "3" = [{ app_id = "kitty"; }];  # Kitty uses app_id, not class
+            "4" = [{ class = "Steam"; } { class = "steam"; }];
+          };
+
           keybindings = lib.mkOptionDefault {
             # Volume controls (PipeWire)
             "XF86AudioRaiseVolume" = "exec wpctl set-volume @DEFAULT_SINK@ 5%+";
@@ -181,14 +189,11 @@
             { command = "~/.config/sway/apply-colors.sh"; }  # Apply colors to Sway
             { command = "swaybg -o '*' -i ~/Pictures/background.jpg"; }
             
-            # Auto-start applications in specific workspaces
-            { command = "swaymsg 'workspace 1; exec code'"; }  # VS Code in workspace 1
-            { command = "swaymsg 'workspace 2; exec xdg-open http://google.com'"; }  # Default browser in workspace 2
-            { command = "swaymsg 'workspace 3; exec kitty'"; }  # Terminal in workspace 3
-            { command = "swaymsg 'workspace 4; exec steam'"; }  # Steam in workspace 4
-            
-            # Return to workspace 1 after starting applications
-            { command = "swaymsg 'workspace 1'"; }
+            # Auto-start applications - they will be assigned to workspaces automatically
+            { command = "sleep 2 && code"; }
+            { command = "sleep 3 && google-chrome-stable"; }
+            { command = "sleep 4 && kitty"; }
+            { command = "sleep 5 && steam"; }
           ];
         };
         
