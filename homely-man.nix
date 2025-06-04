@@ -15,7 +15,7 @@
     {
       # Allow unfree packages for this user
       nixpkgs.config.allowUnfree = true;
-      
+
       home.packages = [
         pkgs.atool
         pkgs.httpie
@@ -23,13 +23,13 @@
         # Browsers
         pkgs.google-chrome
         # Fonts
-        pkgs.fira-code  # Fira Code font with ligatures
+        pkgs.fira-code # Fira Code font with ligatures
         # Bluetooth utilities
-        pkgs.bluetuith  # Terminal-based Bluetooth manager
+        pkgs.bluetuith # Terminal-based Bluetooth manager
         pkgs.bluez-alsa # ALSA plugin for Bluetooth audio
         # Development tools
-        pkgs.vscode  # Visual Studio Code editor
-        pkgs.kitty  # Kitty terminal emulator
+        pkgs.vscode # Visual Studio Code editor
+        pkgs.kitty # Kitty terminal emulator
       ];
 
       # Set default applications
@@ -51,7 +51,7 @@
           if test -f ~/.cache/wal/sequences
             cat ~/.cache/wal/sequences
           end
-          
+
           # For TTY support, check if we're in a Linux console and apply colors
           if test "$TERM" = "linux"
             if test -f ~/.cache/wal/colors-tty.sh
@@ -88,19 +88,19 @@
           # Window settings
           window_padding_width = 10;
           background_opacity = "0.95";
-          
+
           # Cursor settings
           cursor_blink_interval = 0;
-          
+
           # Tab settings
           tab_bar_edge = "bottom";
           tab_bar_style = "powerline";
-          
+
           # Performance
           repaint_delay = 10;
           input_delay = 3;
           sync_to_monitor = "yes";
-          
+
           # Include pywal colors
           include = "~/.cache/wal/colors-kitty.conf";
         };
@@ -111,7 +111,7 @@
         config = rec {
           modifier = "Mod4";
           terminal = "kitty";
-          
+
           # Use actual color values instead of pywal variables during build
           colors = {
             focused = {
@@ -143,13 +143,13 @@
               childBorder = "#ef4444";
             };
           };
-          
+
           # Window and border settings
           window = {
             border = 2;
             titlebar = false;
           };
-          
+
           # Gaps configuration
           gaps = {
             inner = 2;
@@ -158,10 +158,17 @@
 
           # Assign applications to specific workspaces
           assigns = {
-            "1" = [{ class = "Code"; }];  # VS Code uses class "Code"
-            "2" = [{ class = "Google-chrome"; } { class = "Chromium"; } { class = "chrome"; }];
-            "3" = [{ app_id = "kitty"; }];  # Kitty uses app_id, not class
-            "4" = [{ class = "Steam"; } { class = "steam"; }];
+            "1" = [ { class = "Code"; } ]; # VS Code uses class "Code"
+            "2" = [
+              { class = "Google-chrome"; }
+              { class = "Chromium"; }
+              { class = "chrome"; }
+            ];
+            "3" = [ { app_id = "kitty"; } ]; # Kitty uses app_id, not class
+            "4" = [
+              { class = "Steam"; }
+              { class = "steam"; }
+            ];
           };
 
           keybindings = lib.mkOptionDefault {
@@ -173,22 +180,22 @@
             # Brightness controls (using brightnessctl)
             "XF86MonBrightnessUp" = "exec brightnessctl set +10%";
             "XF86MonBrightnessDown" = "exec brightnessctl set 1";
-            
+
             # Bluetooth controls
-            "${modifier}+b" = "exec blueberry";  # Open Bluetooth manager GUI
-            "${modifier}+Shift+b" = "exec ${terminal} -e bluetuith";  # Open terminal Bluetooth manager
-            
+            "${modifier}+b" = "exec blueberry"; # Open Bluetooth manager GUI
+            "${modifier}+Shift+b" = "exec ${terminal} -e bluetuith"; # Open terminal Bluetooth manager
+
             # Pywal controls - generate colors from wallpaper and update Sway
             "${modifier}+w" = "exec ~/.config/sway/update-colors.sh";
-            
+
             # Alternative: choose wallpaper with file picker
             "${modifier}+Shift+w" = "exec ~/.config/sway/choose-wallpaper.sh";
           };
           startup = [
-            { command = "wal -R"; }  # Restore last pywal color scheme
-            { command = "~/.config/sway/apply-colors.sh"; }  # Apply colors to Sway
+            { command = "wal -R"; } # Restore last pywal color scheme
+            { command = "~/.config/sway/apply-colors.sh"; } # Apply colors to Sway
             { command = "swaybg -o '*' -i ~/Pictures/background.jpg"; }
-            
+
             # Auto-start applications - they will be assigned to workspaces automatically
             { command = "sleep 2 && code"; }
             { command = "sleep 3 && google-chrome-stable"; }
@@ -196,7 +203,7 @@
             { command = "sleep 5 && steam"; }
           ];
         };
-        
+
         # Include pywal colors dynamically
         extraConfig = ''
           # Include pywal color scheme if available
@@ -222,7 +229,7 @@
           '';
           executable = true;
         };
-        
+
         ".config/sway/choose-wallpaper.sh" = {
           text = ''
             #!/bin/sh
@@ -236,30 +243,30 @@
           '';
           executable = true;
         };
-        
+
         ".config/sway/apply-colors.sh" = {
           text = ''
-            #!/bin/sh
-            # Apply pywal colors to Sway configuration
-            if [ -f ~/.cache/wal/colors.sh ]; then
-              . ~/.cache/wal/colors.sh
-              
-              # Create Sway color configuration
-              cat > ~/.cache/wal/colors-sway << EOF
-# Pywal colors for Sway
-set \$bg $color0
-set \$fg $color7
-set \$accent $color1
-set \$urgent $color9
-set \$inactive $color8
+                        #!/bin/sh
+                        # Apply pywal colors to Sway configuration
+                        if [ -f ~/.cache/wal/colors.sh ]; then
+                          . ~/.cache/wal/colors.sh
+                          
+                          # Create Sway color configuration
+                          cat > ~/.cache/wal/colors-sway << EOF
+            # Pywal colors for Sway
+            set \$bg $color0
+            set \$fg $color7
+            set \$accent $color1
+            set \$urgent $color9
+            set \$inactive $color8
 
-# Window colors        border  bg      text    indicator child_border
-client.focused         \$accent \$accent \$fg     \$accent   \$accent
-client.focused_inactive \$inactive \$inactive \$fg \$inactive \$inactive  
-client.unfocused       \$bg     \$bg     \$fg     \$bg       \$bg
-client.urgent          \$urgent \$urgent \$fg     \$urgent   \$urgent
-EOF
-            fi
+            # Window colors        border  bg      text    indicator child_border
+            client.focused         \$accent \$accent \$fg     \$accent   \$accent
+            client.focused_inactive \$inactive \$inactive \$fg \$inactive \$inactive  
+            client.unfocused       \$bg     \$bg     \$fg     \$bg       \$bg
+            client.urgent          \$urgent \$urgent \$fg     \$urgent   \$urgent
+            EOF
+                        fi
           '';
           executable = true;
         };

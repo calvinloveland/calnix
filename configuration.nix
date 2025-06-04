@@ -34,18 +34,18 @@
 
   environment.systemPackages = with pkgs; [
     # Fonts for proper terminal display
-    dejavu_fonts  # Includes DejaVu Sans Mono
-    liberation_ttf  # Liberation Mono - excellent terminal font
-    font-awesome  # For icons in status bars
+    dejavu_fonts # Includes DejaVu Sans Mono
+    liberation_ttf # Liberation Mono - excellent terminal font
+    font-awesome # For icons in status bars
 
     # Color scheme generation from wallpapers
     pywal
-    imagemagick  # Required for pywal color generation
+    imagemagick # Required for pywal color generation
 
     # Bluetooth packages
     bluez
     bluez-tools
-    blueberry  # Bluetooth manager GUI
+    blueberry # Bluetooth manager GUI
 
     # nvim-pkg # kickstart neovim  # TODO make this actually work
     git # vc
