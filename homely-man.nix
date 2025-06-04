@@ -27,6 +27,7 @@
         pkgs.bluez-alsa # ALSA plugin for Bluetooth audio
         # Development tools
         pkgs.vscode  # Visual Studio Code editor
+        pkgs.kitty  # Kitty terminal emulator
       ];
 
       programs.fish = {
@@ -62,32 +63,32 @@
 
       programs.swaylock.enable = true;
 
-      # Configure Alacritty terminal with proper fonts and pywal colors
-      programs.alacritty = {
+      # Configure Kitty terminal with proper fonts and pywal colors
+      programs.kitty = {
         enable = true;
+        font = {
+          name = "Fira Code";
+          size = 12;
+        };
         settings = {
-          window = {
-            opacity = 0.95;
-          };
-          font = {
-            normal = {
-              family = "Fira Code";
-              style = "Regular";
-            };
-            bold = {
-              family = "Fira Code";
-              style = "Bold";
-            };
-            italic = {
-              family = "Fira Code";
-              style = "Italic";
-            };
-            size = 12;
-          };
-          # Use the new general.import format instead of deprecated import
-          general = {
-            import = [ "~/.cache/wal/colors-alacritty.yml" ];
-          };
+          # Window settings
+          window_padding_width = 10;
+          background_opacity = "0.95";
+          
+          # Cursor settings
+          cursor_blink_interval = 0;
+          
+          # Tab settings
+          tab_bar_edge = "bottom";
+          tab_bar_style = "powerline";
+          
+          # Performance
+          repaint_delay = 10;
+          input_delay = 3;
+          sync_to_monitor = "yes";
+          
+          # Include pywal colors
+          include = "~/.cache/wal/colors-kitty.conf";
         };
       };
 
@@ -95,7 +96,7 @@
         enable = true;
         config = rec {
           modifier = "Mod4";
-          terminal = "alacritty";
+          terminal = "kitty";
           
           # Use actual color values instead of pywal variables during build
           colors = {
