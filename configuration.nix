@@ -15,6 +15,13 @@
   # Home Manager configuration
   home-manager.backupFileExtension = "backup";
 
+  # Enable parallel building for faster compilation
+  nix.settings = {
+    max-jobs = "auto"; # Use all available CPU cores
+    cores = 0; # Use all available CPU cores for each job
+    experimental-features = [ "nix-command" "flakes" ];
+  };
+
   boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.loader.systemd-boot.enable = true;
   boot.loader.systemd-boot.consoleMode = "auto";
@@ -46,6 +53,18 @@
     bluez
     bluez-tools
     blueberry # Bluetooth manager GUI
+
+    # Game Development
+    # Godot installed via Flatpak to avoid patchelf issues
+    flatpak # Package manager for sandboxed applications
+    blender # 3D modeling, animation, and asset creation
+    krita # Digital painting and 2D art creation
+    audacity # Audio editing for game sounds
+    gimp # Image editing and texture creation
+    aseprite # Pixel art editor (great for 2D games)
+    inkscape # Vector graphics editor for UI and icons
+
+    darktable # RAW photo processing for textures
 
     # nvim-pkg # kickstart neovim  # TODO make this actually work
     git # vc
@@ -116,6 +135,15 @@
   # services.logind.lidSwitch = "suspend-then-hibernate"; # This does not do what I want it to
   services.thermald.enable = true;
 
+  # Enable XDG Desktop Portals (required for Flatpak)
+  xdg.portal = {
+    enable = true;
+    wlr.enable = true; # For Wayland/Sway compatibility
+  };
+
+  # Enable Flatpak service
+  services.flatpak.enable = true;
+
   # Enable Bluetooth service
   services.blueman.enable = true;
 
@@ -153,7 +181,7 @@
       CPU_MAX_PERF_ON_BAT = 20;
 
       #Optional helps save long term battery health
-      START_CHARGE_THRESH_BAT0 = 50; # 50 and below it starts to charge
+      START_CHARGE_THRESH_BAT0 = 70; # 50 and below it starts to charge
       STOP_CHARGE_THRESH_BAT0 = 80; # 80 and above it stops charging
     };
   };
