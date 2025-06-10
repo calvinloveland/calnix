@@ -1,5 +1,5 @@
 {
-  description = "Calvin's Linux";
+  description = "Calvin's Multi-Host NixOS Configuration";
   inputs = {
     kickstart-nix-nvim = {
       url = "github:nix-community/kickstart-nix.nvim";
@@ -16,28 +16,63 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixos-wsl = {
+      url = "github:nix-community/NixOS-WSL";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
-  outputs =
-    {
-      self,
-      nixpkgs,
-      kickstart-nix-nvim,
-      ...
-    }@inputs:
-    let
-      HOSTNAME = "Thinker";
-      nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ];
-      config = inputs.nixpkgs.lib.nixosSystem {
+  
+  outputs = {
+    self,
+    nixpkgs,
+    home-manager,
+    nixos-wsl,
+    kickstart-nix-nvim,
+    ...
+  } @ inputs: {
+    nixosConfigurations = {
+      # ThinkPad configuration with gaming
+      thinker = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
+        specialArgs = { inherit inputs; };
         modules = [
-          inputs.home-manager.nixosModules.home-manager
-          ./configuration.nix
+          { nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ]; }
+          home-manager.nixosModules.home-manager
+          ./hosts/thinker/configuration.nix
         ];
       };
-    in
-    {
-      nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ];
-      nixosConfigurations.nixos = config;
-      nixosConfigurations.Thinker = config;
+      
+      # WSL work configuration without gaming
+      work-wsl = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = { inherit inputs; };
+        modules = [
+          { nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ]; }
+          nixos-wsl.nixosModules.wsl
+          ./hosts/work-wsl/configuration.nix
+        ];
+      };
+
+      # Legacy configuration names for backward compatibility
+      nixos = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = { inherit inputs; };
+        modules = [
+          { nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ]; }
+          home-manager.nixosModules.home-manager
+          ./hosts/thinker/configuration.nix
+        ];
+      };
+      
+      Thinker = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = { inherit inputs; };
+        modules = [
+          { nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ]; }
+          home-manager.nixosModules.home-manager
+          ./hosts/thinker/configuration.nix
+        ];
+      };
     };
+  };
 }

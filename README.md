@@ -1,116 +1,184 @@
-# Calnix - Calvin's NixOS Configuration
+# Calnix - Calvin's Multi-Host NixOS Configuration
 
-A personal NixOS configuration featuring Sway window manager, Home Manager, and a modern development environment.
+A personal NixOS configuration supporting multiple hosts with modular architecture.
 
-## Overview
+## Hosts
 
-This is a flake-based NixOS configuration that provides:
-
+### 🖥️ Thinker (ThinkPad)
+Personal laptop configuration featuring:
 - **Window Manager**: Sway (Wayland compositor)
-- **Terminal**: Kitty with Fira Code font
-- **Shell**: Fish shell
-- **Editor**: Neovim and VS Code
-- **Browser**: Google Chrome
-- **Color Scheme**: Dynamic theming with pywal
-- **Package Management**: Nix flakes with Home Manager
+- **Gaming**: Steam, game development tools, creative software
+- **Desktop Environment**: Full desktop experience with Bluetooth, audio, etc.
+- **Power Management**: ThinkPad-optimized TLP settings
+
+### 🖱️ Work-WSL
+Work-focused WSL configuration featuring:
+- **Development Tools**: VS Code, Docker, cloud tools
+- **No Gaming**: Clean work environment without gaming packages
+- **Minimal**: Only essential packages for productivity
 
 ## Quick Start
 
-1. **Clone and initialize**:
-   ```bash
-   git clone <this-repo> /etc/nixos
-   cd /etc/nixos
-   ```
+### For ThinkPad (Thinker)
+```bash
+git clone <this-repo> /etc/nixos
+cd /etc/nixos
+sudo nixos-generate-config --show-hardware-config > hosts/thinker/hardware-configuration.nix
+./rebuild.sh thinker
+```
 
-2. **Generate hardware configuration**:
-   ```bash
-   sudo nixos-generate-config --show-hardware-config > hardware-configuration.nix
-   ```
+### For WSL (Work)
+```bash
+git clone <this-repo> /etc/nixos
+cd /etc/nixos
+./rebuild.sh work-wsl
+```
 
-3. **Build and switch**:
-   ```bash
-   sudo nixos-rebuild switch --flake .
-   ```
+## Testing
 
-4. **Set up wallpaper** (optional):
-   ```bash
-   mkdir -p ~/Pictures
-   # Place a wallpaper image at ~/Pictures/background.jpg
-   ```
+Before deploying changes, run the comprehensive test suite:
+
+```bash
+# Run all tests
+./tests/run_tests.sh
+
+# Quick validation only
+./tests/run_tests.sh --quick
+
+# Code quality checks only
+./tests/run_tests.sh --lint-only
+```
+
+### Available Tests
+
+- **Configuration Validation**: Checks file structure, imports, and gaming separation
+- **Rebuild Script Tests**: Unit tests for host detection logic
+- **Nix Flake Validation**: Syntax and build checks
+- **Code Quality**: Linting and dead code detection
+- **Security**: File permissions and basic security checks
+
+### Individual Test Commands
+
+```bash
+# Test rebuild script logic
+./tests/test_rebuild.sh
+
+# Validate configuration structure
+./tests/validate_config.py
+
+# Nix-specific tests
+nix flake check --no-build
+```
+
+## Architecture
+
+```
+├── flake.nix              # Multi-host flake configuration
+├── rebuild.sh             # Smart host-aware rebuild script
+├── hosts/
+│   ├── thinker/           # ThinkPad configuration
+│   │   ├── configuration.nix
+│   │   └── hardware-configuration.nix
+│   └── work-wsl/          # WSL work configuration
+│       └── configuration.nix
+├── modules/
+│   ├── base.nix           # Shared base configuration
+│   └── gaming.nix         # Gaming-specific packages
+├── tests/                 # Testing infrastructure
+│   ├── run_tests.sh       # Master test runner
+│   ├── test_rebuild.sh    # Rebuild script unit tests
+│   ├── validate_config.py # Configuration validation
+│   └── flake.nix          # Test environment
+├── homely-man.nix         # Home Manager configuration
+└── python-dev.nix         # Python development environment
+```
+
+## Building Specific Hosts
+
+The rebuild script automatically detects your environment:
+
+```bash
+# Auto-detect and build appropriate configuration
+./rebuild.sh
+
+# Manual override
+./rebuild.sh thinker      # Force ThinkPad build
+./rebuild.sh work-wsl     # Force WSL build
+
+# Or use nixos-rebuild directly
+sudo nixos-rebuild switch --flake .#thinker
+sudo nixos-rebuild switch --flake .#work-wsl
+```
+
+### Auto-Detection Logic
+
+The script detects your environment using:
+1. **WSL Detection** - Checks for Microsoft in `/proc/version` or `WSL_DISTRO_NAME`
+2. **Hostname** - Recognizes "Thinker" or "work-wsl"
+3. **Hardware** - Looks for ThinkPad-specific indicators
+4. **Fallback** - Defaults to "thinker"
 
 ## Key Features
 
-### Sway Window Manager
-- Custom keybindings for brightness, volume, and Bluetooth
-- Dynamic color theming with pywal integration
-- Workspace-specific application launching
-- Window gaps and borders configured
+### Shared (Both Hosts)
+- **Development**: Git, GitHub CLI, Docker, Python environment
+- **Tools**: Fish shell, Neovim, essential CLI utilities
+- **Base System**: Common NixOS configuration
 
-### Development Environment
-- VS Code with extensions
-- Neovim with vim/vi aliases
-- Git configured with user details
-- Kitty terminal with ligature support
+### ThinkPad Only
+- **Gaming**: Steam, Blender, Krita, Aseprite, Dwarf Fortress
+- **Desktop**: Sway, Bluetooth, audio (PipeWire), power management
+- **Creative**: Image editing, 3D modeling, digital art tools
 
-### Color Theming
-- **Mod4+w**: Generate colors from current wallpaper
-- **Mod4+Shift+w**: Choose wallpaper with file picker
-- Automatic color application to Sway, Kitty, and other applications
+### WSL Only
+- **Work Tools**: AWS CLI, kubectl, PostgreSQL, cloud development
+- **Minimal**: No desktop environment or gaming packages
+- **Productivity**: Database tools, document processing
 
-### Default Applications
-- All web content opens in Google Chrome
-- Terminal applications use Kitty
-- Text editing with Neovim
+## Development Workflow
 
-## File Structure
-
-- `flake.nix` - Main flake configuration and inputs
-- `configuration.nix` - System-wide NixOS configuration
-- `hardware-configuration.nix` - Hardware-specific settings
-- `homely-man.nix` - Home Manager user configuration
-- `python-dev.nix` - Python development environment
-- `rebuild.sh` - Convenience script for rebuilding
+1. **Make Changes** to configuration files
+2. **Run Tests** to validate changes:
+   ```bash
+   ./tests/run_tests.sh --quick
+   ```
+3. **Deploy** if tests pass:
+   ```bash
+   ./rebuild.sh
+   ```
 
 ## Customization
 
 ### Adding Packages
-Edit the `home.packages` list in `homely-man.nix`:
+- **All hosts**: Edit `modules/base.nix`
+- **Gaming only**: Edit `modules/gaming.nix`
+- **ThinkPad only**: Edit `hosts/thinker/configuration.nix`
+- **WSL only**: Edit `hosts/work-wsl/configuration.nix`
 
-```nix
-home.packages = [
-  # Add your packages here
-  pkgs.firefox
-  pkgs.discord
-];
-```
-
-### Modifying Sway Config
-The Sway configuration is in `homely-man.nix` under `wayland.windowManager.sway.config`.
-
-### Changing Keybindings
-Keybindings are defined in the `keybindings` section of the Sway configuration.
-
-## Rebuilding
-
-Use the provided script:
-```bash
-./rebuild.sh
-```
-
-Or manually:
-```bash
-sudo nixos-rebuild switch --flake .
-```
+### Creating New Hosts
+1. Create `hosts/new-host/configuration.nix`
+2. Add to `flake.nix` nixosConfigurations
+3. Update `rebuild.sh` with new host option
+4. Add tests for new configuration
 
 ## Troubleshooting
 
-### Pywal Colors Not Working
-Ensure you have a wallpaper at `~/Pictures/background.jpg` and run:
-```bash
-wal -i ~/Pictures/background.jpg
-swaymsg reload
-```
+### ThinkPad-Specific
+- Pywal colors: Ensure wallpaper at `~/Pictures/background.jpg`
+- Brightness controls: User must be in `video` group
+- Bluetooth: Use `Mod4+b` for GUI or `Mod4+Shift+b` for terminal
 
-### Brightness Controls Not Working
-Make sure your user is in the appropriate groups for hardware access.
+### WSL-Specific  
+- Enable WSL systemd: `systemctl --user enable nixos-wsl.service`
+- Docker: Use rootless mode (automatically configured)
+
+### Testing Issues
+- **Nix not found**: Install Nix or use `--quick` flag
+- **Permission errors**: Ensure scripts are executable: `chmod +x tests/*.sh`
+- **Python errors**: Ensure Python 3 is available
+
+## Legacy Support
+
+The flake maintains backward compatibility with:
+- `nixos` and `Thinker` configurations (both point to thinker host)
 
