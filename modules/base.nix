@@ -46,6 +46,11 @@
     btop # hardware monitor
     fastfetch # system info
 
+    # Network and storage tools
+    cifs-utils # SMB/CIFS mounting for NAS access
+    rsync # efficient file synchronization
+    exfat # Support for exFAT filesystems (cameras, etc.)
+
     # Utilities
     cowsay
     glow # markdown viewer

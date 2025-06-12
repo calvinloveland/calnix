@@ -1,4 +1,4 @@
 .direnv
 *.qcow2
 result
-.git-hooks
+.git-hooks.nas-credentials
