@@ -51,6 +51,7 @@
     google-chrome # Google has their hooks in me
     pavucontrol # controls volume
     fortune-kind # good fortunes
+    libreoffice # Office suite for documents, spreadsheets, presentations
   ];
 
   # Enable Bluetooth

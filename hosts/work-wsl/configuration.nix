@@ -34,6 +34,7 @@
     
     # Text processing
     pandoc # Document converter
+    libreoffice # Office suite for documents, spreadsheets, presentations
     
     # Database tools
     postgresql # For database work
