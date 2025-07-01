@@ -52,6 +52,13 @@
     pavucontrol # controls volume
     fortune-kind # good fortunes
     libreoffice # Office suite for documents, spreadsheets, presentations
+    
+    # Video editing and media
+    vlc # Video player and basic editing
+    ffmpeg # CLI video processing and stitching tool
+    
+    # System management
+    bashmount # Interactive mount manager for USB drives
   ];
 
   # Enable Bluetooth
