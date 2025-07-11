@@ -43,10 +43,30 @@ detect_host() {
     echo "thinker"
 }
 
-# Allow manual override as first argument
-if [ $# -gt 0 ]; then
-    HOST="$1"
-else
+# Parse arguments
+HOST=""
+EXTRA_ARGS=()
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        thinker|1337book|work-wsl)
+            if [ -z "$HOST" ]; then
+                HOST="$1"
+            else
+                EXTRA_ARGS+=("$1")
+            fi
+            shift
+            ;;
+        *)
+            EXTRA_ARGS+=("$1")
+            shift
+            ;;
+    esac
+done
+
+# Auto-detect host if not specified
+if [ -z "$HOST" ]; then
     HOST=$(detect_host)
     echo "Auto-detected host: $HOST"
 fi
@@ -54,24 +74,30 @@ fi
 case $HOST in
   thinker)
     echo "🖥️  Rebuilding ThinkPad configuration..."
-    sudo nixos-rebuild switch --flake .#thinker
+    sudo nixos-rebuild switch --flake .#thinker "${EXTRA_ARGS[@]}"
     ;;
   1337book)
     echo "💻 Rebuilding HP Elitebook configuration..."
-    sudo nixos-rebuild switch --flake .#1337book
+    sudo nixos-rebuild switch --flake .#1337book "${EXTRA_ARGS[@]}"
     ;;
   work-wsl)
     echo "🖱️  Rebuilding WSL work configuration..."
-    sudo nixos-rebuild switch --flake .#work-wsl
+    sudo nixos-rebuild switch --flake .#work-wsl "${EXTRA_ARGS[@]}"
     ;;
   *)
     echo "❌ Unknown host: $HOST"
     echo ""
-    echo "Usage: $0 [thinker|1337book|work-wsl]"
+    echo "Usage: $0 [host] [nixos-rebuild options]"
     echo "Available hosts:"
     echo "  thinker   - ThinkPad with gaming and desktop environment"
     echo "  1337book  - HP Elitebook with gaming and desktop environment"
     echo "  work-wsl  - WSL work environment without gaming"
+    echo ""
+    echo "Examples:"
+    echo "  $0                    # Auto-detect host and rebuild"
+    echo "  $0 1337book           # Build specific host"
+    echo "  $0 1337book --dry-run # Dry run for specific host"
+    echo "  $0 --dry-run          # Auto-detect host and dry run"
     echo ""
     echo "Auto-detection checks:"
     echo "  - WSL environment (/proc/version, WSL_DISTRO_NAME)"
