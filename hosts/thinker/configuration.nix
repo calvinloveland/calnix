@@ -6,6 +6,7 @@
 }:
 {
   imports = [
+    ./hardware-configuration.nix
     ../../modules/base.nix
     ../../modules/gaming.nix
     ../../homely-man.nix
