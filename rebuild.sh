@@ -17,6 +17,10 @@ detect_host() {
             echo "thinker"
             return
             ;;
+        1337book|elitebook)
+            echo "1337book"
+            return
+            ;;
         work-wsl|work)
             echo "work-wsl"
             return
@@ -26,6 +30,12 @@ detect_host() {
     # Check for ThinkPad-specific hardware
     if [ -f /proc/acpi/ibm/version ] || lspci 2>/dev/null | grep -qi thinkpad; then
         echo "thinker"
+        return
+    fi
+    
+    # Check for HP hardware
+    if lspci 2>/dev/null | grep -qi "hewlett-packard\|hp" || dmidecode -s system-manufacturer 2>/dev/null | grep -qi hp; then
+        echo "1337book"
         return
     fi
     
@@ -46,6 +56,10 @@ case $HOST in
     echo "🖥️  Rebuilding ThinkPad configuration..."
     sudo nixos-rebuild switch --flake .#thinker
     ;;
+  1337book)
+    echo "💻 Rebuilding HP Elitebook configuration..."
+    sudo nixos-rebuild switch --flake .#1337book
+    ;;
   work-wsl)
     echo "🖱️  Rebuilding WSL work configuration..."
     sudo nixos-rebuild switch --flake .#work-wsl
@@ -53,15 +67,17 @@ case $HOST in
   *)
     echo "❌ Unknown host: $HOST"
     echo ""
-    echo "Usage: $0 [thinker|work-wsl]"
+    echo "Usage: $0 [thinker|1337book|work-wsl]"
     echo "Available hosts:"
     echo "  thinker   - ThinkPad with gaming and desktop environment"
+    echo "  1337book  - HP Elitebook with gaming and desktop environment"
     echo "  work-wsl  - WSL work environment without gaming"
     echo ""
     echo "Auto-detection checks:"
     echo "  - WSL environment (/proc/version, WSL_DISTRO_NAME)"
-    echo "  - Hostname (Thinker, work-wsl)"
+    echo "  - Hostname (Thinker, 1337book, work-wsl)"
     echo "  - ThinkPad hardware (/proc/acpi/ibm/version, lspci)"
+    echo "  - HP hardware (lspci, dmidecode)"
     echo "  - Default: thinker"
     exit 1
     ;;

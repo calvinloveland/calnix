@@ -53,6 +53,17 @@
         ];
       };
 
+      # HP Elitebook configuration with gaming
+      "1337book" = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = { inherit inputs; };
+        modules = [
+          { nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ]; }
+          home-manager.nixosModules.home-manager
+          ./hosts/1337book/configuration.nix
+        ];
+      };
+
       # Legacy configuration names for backward compatibility
       nixos = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";

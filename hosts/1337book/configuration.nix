@@ -15,17 +15,17 @@
   # Home Manager configuration
   home-manager.backupFileExtension = "backup";
 
-  # ThinkPad-specific boot configuration
+  # HP Elitebook-specific boot configuration
   boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.loader.systemd-boot.enable = true;
   boot.loader.systemd-boot.consoleMode = "auto";
   boot.loader.efi.canTouchEfiVariables = true;
 
   # Hostname
-  networking.hostName = "Thinker";
+  networking.hostName = "1337book";
   networking.networkmanager.enable = true;
 
-  # ThinkPad-specific packages
+  # HP Elitebook-specific packages
   environment.systemPackages = with pkgs; [
     # Color scheme generation from wallpapers
     pywal
@@ -72,7 +72,7 @@
     };
   };
 
-  # ThinkPad power management
+  # HP Elitebook power management
   services.thermald.enable = true;
   services.tlp = {
     enable = true;
@@ -86,11 +86,11 @@
       CPU_MIN_PERF_ON_AC = 0;
       CPU_MAX_PERF_ON_AC = 100;
       CPU_MIN_PERF_ON_BAT = 0;
-      CPU_MAX_PERF_ON_BAT = 20;
+      CPU_MAX_PERF_ON_BAT = 30; # Slightly higher than ThinkPad for HP's power profile
 
-      # Battery health optimization
-      START_CHARGE_THRESH_BAT0 = 70;
-      STOP_CHARGE_THRESH_BAT0 = 80;
+      # Battery health optimization (HP Elitebook specific)
+      START_CHARGE_THRESH_BAT0 = 75;
+      STOP_CHARGE_THRESH_BAT0 = 85;
     };
   };
 
@@ -127,7 +127,7 @@
     HibernateDelaySec=60min
   '';
 
-  # Add user to additional groups for ThinkPad functionality
+  # Add user to additional groups for HP Elitebook functionality
   users.users.calvin.extraGroups = [
     "wheel"
     "networkmanager" 
@@ -135,33 +135,10 @@
     "docker"
   ];
 
-  # Auto-mounting configuration for ThinkPad only
-  fileSystems."/mnt/insta360" = {
-    device = "/dev/disk/by-uuid/4A21-0000";
-    fsType = "exfat";
-    options = [ 
-      "noauto" # Don't mount at boot
-      "user" # Allow regular users to mount
-      "uid=calvin" # Set owner to calvin
-      "gid=users" # Set group to users
-      "umask=0022" # Set permissions
-    ];
-  };
-
-  fileSystems."/mnt/nas" = {
-    device = "//192.168.0.179/best-shared-folder";
-    fsType = "cifs";
-    options = [ 
-      "noauto" # Don't mount at boot
-      "user" # Allow regular users to mount
-      "credentials=/home/calvin/.nas-credentials"
-      "uid=calvin"
-      "gid=users"
-      "file_mode=0664"
-      "dir_mode=0775"
-    ];
-  };
-
   # Enable auto-mounting service for removable devices
   services.udisks2.enable = true;
+
+  # HP-specific optimizations
+  # Enable fwupd for firmware updates (HP has good Linux support)
+  services.fwupd.enable = true;
 }
