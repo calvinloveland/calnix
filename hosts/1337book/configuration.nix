@@ -12,6 +12,8 @@
     ../../homely-man.nix
     ../../python-dev.nix
   ];
+  
+  hardware.enableAllFirmware = true;
 
   # Home Manager configuration
   home-manager.backupFileExtension = "backup";
