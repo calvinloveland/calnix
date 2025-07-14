@@ -16,6 +16,9 @@
       # Allow unfree packages for this user
       nixpkgs.config.allowUnfree = true;
 
+      # Set Home Manager state version
+      home.stateVersion = "23.11";
+
       home.packages = [
         pkgs.atool
         pkgs.httpie
@@ -24,6 +27,13 @@
         pkgs.google-chrome
         # Fonts
         pkgs.fira-code # Fira Code font with ligatures
+        pkgs.font-awesome # Required for waybar icons
+        pkgs.nerd-fonts.fira-code # Nerd Font version of Fira Code
+        pkgs.nerd-fonts.dejavu-sans-mono # Nerd Font version of DejaVu Sans Mono
+        # Waybar dependencies
+        pkgs.playerctl # For media controls
+        pkgs.ncdu # Disk usage analyzer
+        pkgs.curl # For weather info
         # Bluetooth utilities
         pkgs.bluetuith # Terminal-based Bluetooth manager
         pkgs.bluez-alsa # ALSA plugin for Bluetooth audio
@@ -171,8 +181,12 @@
             ];
           };
 
+          # Let waybar be managed by systemd/Home Manager
+          bars = [];
+
+          # Key bindings
           keybindings = lib.mkOptionDefault {
-            # Volume controls (PipeWire)
+            # Audio controls (using WirePlumber)
             "XF86AudioRaiseVolume" = "exec wpctl set-volume @DEFAULT_SINK@ 5%+";
             "XF86AudioLowerVolume" = "exec wpctl set-volume @DEFAULT_SINK@ 5%-";
             "XF86AudioMute" = "exec wpctl set-mute @DEFAULT_SINK@ toggle";
@@ -211,7 +225,360 @@
         '';
       };
 
-      # Create scripts for color management
+      # Waybar configuration with CPU and power monitoring
+      programs.waybar = {
+        enable = true;
+        systemd = {
+          enable = true;
+          target = "sway-session.target"; # Ensure waybar starts with Sway
+        };
+        settings = {
+          mainBar = {
+            layer = "top";
+            position = "top";
+            height = 30;
+            
+            modules-left = ["sway/workspaces" "sway/mode" "custom/media"];
+            modules-center = ["sway/window"];
+            modules-right = [
+              "cpu" 
+              "memory"
+              "temperature"
+              "disk"
+              "battery"
+              "network#wifi"
+              "network#ethernet"
+              "network#disconnected"
+              "pulseaudio" 
+              "backlight"
+              "custom/weather"
+              "clock"
+              "tray"
+            ];
+
+            # CPU usage with detailed monitoring
+            "cpu" = {
+              format = " CPU: {usage}%";
+              tooltip-format = "CPU Usage: {usage}%\nLoad: {load}";
+              interval = 2;
+              on-click = "kitty -e htop";
+            };
+
+            # Memory usage
+            "memory" = {
+              format = " RAM: {}%";
+              tooltip-format = "Memory: {used:0.1f}G / {total:0.1f}G ({percentage}%)\nSwap: {swapUsed:0.1f}G / {swapTotal:0.1f}G";
+              interval = 2;
+              on-click = "kitty -e htop";
+            };
+
+            # Disk space
+            "disk" = {
+              format = " Disk: {percentage_used}%";
+              path = "/";
+              interval = 30;
+              tooltip-format = "Disk usage: {used} used out of {total} on {path} ({percentage_used}%)";
+              on-click = "kitty -e ncdu /";
+            };
+
+            # CPU temperature
+            "temperature" = {
+              critical-threshold = 80;
+              format-critical = " Temp: {temperatureC}°C!";
+              format = " Temp: {temperatureC}°C";
+              tooltip-format = "CPU Temperature: {temperatureC}°C";
+              interval = 5;
+            };
+
+            # Battery with power consumption - optimized for HP Elitebook
+            "battery" = {
+              bat = "BAT0";
+              adapter = "AC";
+              interval = 10;
+              states = {
+                "warning" = 30;
+                "critical" = 15;
+              };
+              # Using Unicode symbols that don't require special fonts
+              format = "{capacity}% {icon}";
+              format-charging = "⚡ {capacity}%";
+              format-plugged = "🔌 {capacity}%";
+              # Unicode battery icons as fallback
+              format-icons = ["▁" "▂" "▃" "▄" "▅"];
+              tooltip = true;
+            };
+
+            # Audio
+            "pulseaudio" = {
+              format = "{icon} Vol: {volume}%";
+              format-bluetooth = " BT: {volume}%";
+              format-muted = " Muted";
+              format-source = " Mic: {volume}%";
+              format-source-muted = " Mic Off";
+              format-icons = {
+                "headphone" = "";
+                "hands-free" = "";
+                "headset" = "";
+                "phone" = "";
+                "portable" = "";
+                "car" = "";
+                "default" = ["" "" ""];
+              };
+              scroll-step = 1;
+              on-click = "pavucontrol";
+            };
+
+            # Backlight
+            "backlight" = {
+              format = "{icon} Light: {percent}%";
+              format-icons = ["" ""];
+              on-scroll-up = "brightnessctl set +5%";
+              on-scroll-down = "brightnessctl set 5%-";
+            };
+
+            # Network - split into multiple modules for better control
+            "network#wifi" = {
+              interface = "wlp*";  # Updated to match your wlp0s20f3 interface
+              format-wifi = " WiFi: {essid} ({signalStrength}%)";
+              format-ethernet = "";
+              format-disconnected = "";
+              tooltip-format-wifi = "WiFi: {essid} ({signalStrength}%)\nIP: {ipaddr}/{cidr}\nFrequency: {frequency}GHz\nUp: {bandwidthUpBits} Down: {bandwidthDownBits}";
+              interval = 5;
+              on-click = "kitty -e nmtui";
+            };
+
+            "network#ethernet" = {
+              interface = "eth*";
+              format-wifi = "";
+              format-ethernet = " Net: {ipaddr}/{cidr}";
+              format-disconnected = "";
+              tooltip-format-ethernet = "Ethernet: {ifname}\nIP: {ipaddr}/{cidr}\nUp: {bandwidthUpBits} Down: {bandwidthDownBits}";
+              interval = 5;
+              on-click = "kitty -e nmtui";
+            };
+
+            "network#disconnected" = {
+              interface = "*";
+              format-wifi = "";
+              format-ethernet = "";
+              format-disconnected = "⚠ Network Down";
+              interval = 5;
+              tooltip-format-disconnected = "No network connection";
+              on-click = "kitty -e nmtui";
+            };
+
+            # Weather
+            "custom/weather" = {
+              exec = "${pkgs.bash}/bin/bash ~/.config/waybar/weather.sh";
+              interval = 600; # Update every 10 minutes
+              return-type = "json";
+              format = "{icon} {}";
+              format-icons = {
+                "Clear" = "☀️";
+                "Clouds" = "☁️";
+                "Rain" = "🌧️";
+                "Snow" = "❄️";
+                "default" = "🌈";
+              };
+              on-click = "${pkgs.xdg-utils}/bin/xdg-open https://wttr.in";
+            };
+
+            # Media player
+            "custom/media" = {
+              format = "{icon} Media: {}";
+              return-type = "json";
+              max-length = 40;
+              format-icons = {
+                "spotify" = "";
+                "default" = "🎜";
+              };
+              escape = true;
+              exec = "playerctl -a metadata --format '{\"text\": \"{{artist}} - {{markup_escape(title)}}\", \"tooltip\": \"{{playerName}} : {{artist}} - {{album}} - {{markup_escape(title)}}\", \"alt\": \"{{status}}\", \"class\": \"{{status}}\"}' -F";
+              on-click = "playerctl play-pause";
+            };
+
+            # Clock
+            "clock" = {
+              format = " {:%H:%M}";
+              format-alt = " {:%Y-%m-%d}";
+              tooltip-format = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
+            };
+
+            # System tray
+            "tray" = {
+              icon-size = 21;
+              spacing = 10;
+            };
+          };
+        };
+
+        # Simple styling
+        style = ''
+          * {
+            font-family: "DejaVu Sans Mono", FontAwesome;
+            font-size: 13px;
+          }
+
+          window#waybar {
+            background-color: rgba(43, 48, 59, 0.9);
+            color: #ffffff;
+          }
+
+          #workspaces button {
+            padding: 0 5px;
+            background-color: transparent;
+            color: #ffffff;
+            border-bottom: 3px solid transparent;
+          }
+
+          #workspaces button:hover {
+            background: rgba(0, 0, 0, 0.2);
+          }
+
+          #workspaces button.focused {
+            background-color: #64727D;
+            border-bottom: 3px solid #ffffff;
+          }
+
+          #workspaces button.urgent {
+            background-color: #eb4d4b;
+          }
+
+          #cpu {
+            background-color: #2ecc71;
+            color: #000000;
+            padding: 0 8px;
+            margin: 0 2px;
+          }
+
+          #memory {
+            background-color: #9b59b6;
+            color: #ffffff;
+            padding: 0 8px;
+            margin: 0 2px;
+          }
+
+          #disk {
+            background-color: #546E7A;
+            color: #ffffff;
+            padding: 0 8px;
+            margin: 0 2px;
+          }
+
+          #temperature {
+            background-color: #f39c12;
+            color: #000000;
+            padding: 0 8px;
+            margin: 0 2px;
+          }
+
+          #temperature.critical {
+            background-color: #eb4d4b;
+          }
+
+          #battery {
+            background-color: #ffffff;
+            color: #000000;
+            padding: 0 8px;
+            margin: 0 2px;
+          }
+
+          #battery.charging {
+            background-color: #26A65B;
+            color: #ffffff;
+          }
+
+          #battery.warning:not(.charging) {
+            background-color: #ffbe61;
+            color: black;
+          }
+
+          #battery.critical:not(.charging) {
+            background-color: #f53c3c;
+            color: white;
+            animation-name: blink;
+            animation-duration: 0.5s;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+            animation-direction: alternate;
+          }
+
+          #network, #network\\.wifi, #network\\.ethernet, #network\\.disconnected {
+            background-color: #2980b9;
+            color: #ffffff;
+            padding: 0 8px;
+            margin: 0 2px;
+          }
+
+          #network\\.disconnected {
+            background-color: #f53c3c;
+          }
+
+          #pulseaudio {
+            background-color: #f1c40f;
+            color: #000000;
+            padding: 0 8px;
+            margin: 0 2px;
+          }
+
+          #pulseaudio.muted {
+            background-color: #90b1b1;
+            color: #2a5c45;
+          }
+
+          #backlight {
+            background-color: #90b1b1;
+            color: #000000;
+            padding: 0 8px;
+            margin: 0 2px;
+          }
+
+          #custom-weather {
+            background-color: #7DAEA3;
+            color: #000000;
+            padding: 0 8px;
+            margin: 0 2px;
+          }
+
+          #clock {
+            background-color: #64727D;
+            padding: 0 8px;
+            margin: 0 2px;
+          }
+
+          #custom-media {
+            background-color: #66cc99;
+            color: #2a5c45;
+            padding: 0 8px;
+            margin: 0 4px;
+            min-width: 100px;
+          }
+
+          #custom-media.playing {
+            background-color: #2980b9;
+            color: #ffffff;
+          }
+
+          #custom-media.paused {
+            background-color: #90b1b1;
+            color: #2a5c45;
+          }
+
+          #tray {
+            padding: 0 8px;
+            margin: 0 2px;
+          }
+
+          @keyframes blink {
+            to {
+              background-color: #ffffff;
+              color: #000000;
+            }
+          }
+        '';
+      };
+
+      # Create scripts for color management and utilities
       home.file = {
         ".config/sway/update-colors.sh" = {
           text = ''
@@ -246,32 +613,84 @@
 
         ".config/sway/apply-colors.sh" = {
           text = ''
-                        #!/bin/sh
-                        # Apply pywal colors to Sway configuration
-                        if [ -f ~/.cache/wal/colors.sh ]; then
-                          . ~/.cache/wal/colors.sh
-                          
-                          # Create Sway color configuration
-                          cat > ~/.cache/wal/colors-sway << EOF
-            # Pywal colors for Sway
-            set \$bg $color0
-            set \$fg $color7
-            set \$accent $color1
-            set \$urgent $color9
-            set \$inactive $color8
+            #!/bin/sh
+            # Apply pywal colors to Sway configuration
+            if [ -f ~/.cache/wal/colors.sh ]; then
+              . ~/.cache/wal/colors.sh
+              
+              # Create Sway color configuration
+              cat > ~/.cache/wal/colors-sway << EOF
+# Pywal color scheme for Sway
+# Colors (colorscheme: $wallpaper)
+set \$background $color0
+set \$foreground $color15
+set \$cursor $cursor
 
-            # Window colors        border  bg      text    indicator child_border
-            client.focused         \$accent \$accent \$fg     \$accent   \$accent
-            client.focused_inactive \$inactive \$inactive \$fg \$inactive \$inactive  
-            client.unfocused       \$bg     \$bg     \$fg     \$bg       \$bg
-            client.urgent          \$urgent \$urgent \$fg     \$urgent   \$urgent
-            EOF
-                        fi
+set \$color0 $color0
+set \$color1 $color1
+set \$color2 $color2
+set \$color3 $color3
+set \$color4 $color4
+set \$color5 $color5
+set \$color6 $color6
+set \$color7 $color7
+set \$color8 $color8
+set \$color9 $color9
+set \$color10 $color10
+set \$color11 $color11
+set \$color12 $color12
+set \$color13 $color13
+set \$color14 $color14
+set \$color15 $color15
+
+# Window decoration colors
+# class                 border     backgr.    text       indicator  child_border
+client.focused          \$color4   \$color4   \$color0   \$color4   \$color4
+client.focused_inactive \$color8   \$color8   \$color7   \$color8   \$color8
+client.unfocused        \$color0   \$color0   \$color7   \$color0   \$color0
+client.urgent           \$color1   \$color1   \$color15  \$color1   \$color1
+client.placeholder      \$color8   \$color8   \$color7   \$color8   \$color8
+
+client.background       \$background
+EOF
+              
+              # Create waybar colors configuration
+              cat > ~/.cache/wal/waybar-colors.css << EOF
+/* Pywal colors for waybar */
+@define-color background $color0;
+@define-color foreground $color15;
+@define-color color1 $color1;
+@define-color color2 $color2;
+@define-color color3 $color3;
+@define-color color4 $color4;
+@define-color color5 $color5;
+@define-color color6 $color6;
+EOF
+            fi
+          '';
+          executable = true;
+        };
+
+        ".config/waybar/weather.sh" = {
+          text = ''
+            #!/bin/bash
+            # Weather script for waybar
+            
+            # Fetch weather information from wttr.in
+            WEATHER_INFO=$(curl -s "https://wttr.in/?format=%c|%t|%C")
+            
+            # Parse the output (format: icon|temperature|condition)
+            if [[ $? -eq 0 ]]; then
+              IFS='|' read -r ICON TEMP CONDITION <<< "$WEATHER_INFO"
+              # Format as JSON for waybar's custom module
+              echo "{\"text\": \"$TEMP\", \"alt\": \"$CONDITION\", \"tooltip\": \"Condition: $CONDITION\nTemperature: $TEMP\"}"
+            else
+              # If curl fails, show error message
+              echo "{\"text\": \"Weather Unavailable\", \"alt\": \"Error\", \"tooltip\": \"Weather service is currently unavailable\"}"
+            fi
           '';
           executable = true;
         };
       };
-
-      home.stateVersion = "25.05";
     };
 }
