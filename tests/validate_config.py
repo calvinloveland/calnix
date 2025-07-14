@@ -52,6 +52,7 @@ class ConfigValidator:
             "hosts/1337book/configuration.nix",
             "hosts/work-wsl/configuration.nix",
             "modules/base.nix",
+            "modules/desktop.nix",
             "modules/gaming.nix",
             "homely-man.nix",
             "python-dev.nix"

@@ -102,6 +102,7 @@ nix flake check --no-build
 │       └── configuration.nix
 ├── modules/
 │   ├── base.nix           # Shared base configuration
+│   ├── desktop.nix        # Desktop environment (Sway, Bluetooth, audio, etc.)
 │   └── gaming.nix         # Gaming-specific packages
 ├── tests/                 # Testing infrastructure
 │   ├── run_tests.sh       # Master test runner
@@ -183,6 +184,7 @@ The script detects your environment using:
 
 ### Adding Packages
 - **All hosts**: Edit `modules/base.nix`
+- **Desktop hosts only**: Edit `modules/desktop.nix`
 - **Gaming only**: Edit `modules/gaming.nix`
 - **ThinkPad only**: Edit `hosts/thinker/configuration.nix`
 - **HP Elitebook only**: Edit `hosts/1337book/configuration.nix`
