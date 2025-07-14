@@ -11,6 +11,14 @@ Personal laptop configuration featuring:
 - **Desktop Environment**: Full desktop experience with Bluetooth, audio, etc.
 - **Power Management**: ThinkPad-optimized TLP settings
 
+### 💻 1337book (HP Elitebook)
+HP Elitebook configuration featuring:
+- **Window Manager**: Sway (Wayland compositor)
+- **Gaming**: Steam, Blender, Krita, Aseprite, Dwarf Fortress
+- **Desktop Environment**: Full desktop experience with Bluetooth, audio, etc.
+- **Power Management**: HP Elitebook-optimized TLP settings with thermal management
+- **Hardware**: Latest kernel packages, HP-specific firmware updates via fwupd
+
 ### 🖱️ Work-WSL
 Work-focused WSL configuration featuring:
 - **Development Tools**: VS Code, Docker, cloud tools
@@ -25,6 +33,14 @@ git clone <this-repo> /etc/nixos
 cd /etc/nixos
 sudo nixos-generate-config --show-hardware-config > hosts/thinker/hardware-configuration.nix
 ./rebuild.sh thinker
+```
+
+### For HP Elitebook (1337book)
+```bash
+git clone <this-repo> /etc/nixos
+cd /etc/nixos
+sudo nixos-generate-config --show-hardware-config > hosts/1337book/hardware-configuration.nix
+./rebuild.sh 1337book
 ```
 
 ### For WSL (Work)
@@ -79,6 +95,9 @@ nix flake check --no-build
 │   ├── thinker/           # ThinkPad configuration
 │   │   ├── configuration.nix
 │   │   └── hardware-configuration.nix
+│   ├── 1337book/          # HP Elitebook configuration
+│   │   ├── configuration.nix
+│   │   └── hardware-configuration.nix
 │   └── work-wsl/          # WSL work configuration
 │       └── configuration.nix
 ├── modules/
@@ -103,10 +122,12 @@ The rebuild script automatically detects your environment:
 
 # Manual override
 ./rebuild.sh thinker      # Force ThinkPad build
+./rebuild.sh 1337book     # Force HP Elitebook build
 ./rebuild.sh work-wsl     # Force WSL build
 
 # Or use nixos-rebuild directly
 sudo nixos-rebuild switch --flake .#thinker
+sudo nixos-rebuild switch --flake .#1337book
 sudo nixos-rebuild switch --flake .#work-wsl
 ```
 
@@ -114,23 +135,34 @@ sudo nixos-rebuild switch --flake .#work-wsl
 
 The script detects your environment using:
 1. **WSL Detection** - Checks for Microsoft in `/proc/version` or `WSL_DISTRO_NAME`
-2. **Hostname** - Recognizes "Thinker" or "work-wsl"
-3. **Hardware** - Looks for ThinkPad-specific indicators
-4. **Fallback** - Defaults to "thinker"
+2. **Hostname** - Recognizes "Thinker", "1337book", "elitebook", or "work-wsl"
+3. **Hardware** - Looks for ThinkPad-specific indicators (`/proc/acpi/ibm/version`)
+4. **HP Hardware** - Detects HP/Hewlett-Packard via `lspci` or `dmidecode`
+5. **Fallback** - Defaults to "thinker"
 
 ## Key Features
 
-### Shared (Both Hosts)
+### Shared (All Desktop Hosts)
 - **Development**: Git, GitHub CLI, Docker, Python environment
 - **Tools**: Fish shell, Neovim, essential CLI utilities
 - **Base System**: Common NixOS configuration
 
-### ThinkPad Only
+### Desktop Hosts (Thinker & 1337book)
 - **Gaming**: Steam, Blender, Krita, Aseprite, Dwarf Fortress
 - **Desktop**: Sway, Bluetooth, audio (PipeWire), power management
 - **Creative**: Image editing, 3D modeling, digital art tools
+- **Media**: VLC, FFmpeg for video processing
 
-### WSL Only
+### ThinkPad Specific (Thinker)
+- **Power Management**: ThinkPad-optimized TLP settings
+- **Hardware**: ThinkPad ACPI integration
+
+### HP Elitebook Specific (1337book)
+- **Power Management**: HP-optimized TLP settings with thermal management
+- **Hardware**: Latest kernel packages, HP firmware updates (fwupd)
+- **Battery**: HP-specific charging thresholds (75%-85%)
+
+### WSL Only (Work-WSL)
 - **Work Tools**: AWS CLI, kubectl, PostgreSQL, cloud development
 - **Minimal**: No desktop environment or gaming packages
 - **Productivity**: Database tools, document processing
@@ -153,6 +185,7 @@ The script detects your environment using:
 - **All hosts**: Edit `modules/base.nix`
 - **Gaming only**: Edit `modules/gaming.nix`
 - **ThinkPad only**: Edit `hosts/thinker/configuration.nix`
+- **HP Elitebook only**: Edit `hosts/1337book/configuration.nix`
 - **WSL only**: Edit `hosts/work-wsl/configuration.nix`
 
 ### Creating New Hosts
@@ -163,12 +196,19 @@ The script detects your environment using:
 
 ## Troubleshooting
 
-### ThinkPad-Specific
+### Desktop Hosts (Thinker & 1337book)
 - Pywal colors: Ensure wallpaper at `~/Pictures/background.jpg`
 - Brightness controls: User must be in `video` group
 - Bluetooth: Use `Mod4+b` for GUI or `Mod4+Shift+b` for terminal
 
-### WSL-Specific  
+### ThinkPad-Specific (Thinker)
+- ACPI features: Check `/proc/acpi/ibm/` for available functions
+
+### HP Elitebook-Specific (1337book)
+- Firmware updates: Use `fwupdmgr` for HP firmware management
+- Thermal management: `thermald` service handles temperature control
+
+### WSL-Specific (Work-WSL)
 - Enable WSL systemd: `systemctl --user enable nixos-wsl.service`
 - Docker: Use rootless mode (automatically configured)
 

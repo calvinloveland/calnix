@@ -49,6 +49,7 @@ class ConfigValidator:
             "flake.nix",
             "rebuild.sh", 
             "hosts/thinker/configuration.nix",
+            "hosts/1337book/configuration.nix",
             "hosts/work-wsl/configuration.nix",
             "modules/base.nix",
             "modules/gaming.nix",
@@ -107,7 +108,7 @@ class ConfigValidator:
             outputs = json.loads(result.stdout)
             
             # Check required nixosConfigurations exist
-            required_configs = ["thinker", "work-wsl"]
+            required_configs = ["thinker", "1337book", "work-wsl"]
             nixos_configs = outputs.get("nixosConfigurations", {})
             
             for config in required_configs:
@@ -140,9 +141,10 @@ class ConfigValidator:
                 self.success("work-wsl properly excludes gaming module")
 
     def validate_common_imports(self):
-        """Check that both hosts import base configuration."""
+        """Check that all hosts import base configuration."""
         configs = [
             "hosts/thinker/configuration.nix",
+            "hosts/1337book/configuration.nix",
             "hosts/work-wsl/configuration.nix"
         ]
         

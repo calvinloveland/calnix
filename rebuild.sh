@@ -58,8 +58,18 @@ while [[ $# -gt 0 ]]; do
             fi
             shift
             ;;
+        -h|--help)
+            HOST="help"
+            shift
+            ;;
         *)
-            EXTRA_ARGS+=("$1")
+            # Check if this looks like a host name but isn't valid
+            if [[ "$1" =~ ^[a-zA-Z0-9-]+$ ]] && [[ ! "$1" =~ ^-- ]] && [[ "$1" != --* ]] && [ -z "$HOST" ]; then
+                # This might be an invalid host name
+                HOST="$1"
+            else
+                EXTRA_ARGS+=("$1")
+            fi
             shift
             ;;
     esac
@@ -83,6 +93,28 @@ case $HOST in
   work-wsl)
     echo "🖱️  Rebuilding WSL work configuration..."
     sudo nixos-rebuild switch --flake .#work-wsl "${EXTRA_ARGS[@]}"
+    ;;
+  help)
+    echo ""
+    echo "Usage: $0 [host] [nixos-rebuild options]"
+    echo "Available hosts:"
+    echo "  thinker   - ThinkPad with gaming and desktop environment"
+    echo "  1337book  - HP Elitebook with gaming and desktop environment"
+    echo "  work-wsl  - WSL work environment without gaming"
+    echo ""
+    echo "Examples:"
+    echo "  $0                    # Auto-detect host and rebuild"
+    echo "  $0 1337book           # Build specific host"
+    echo "  $0 1337book --dry-run # Dry run for specific host"
+    echo "  $0 --dry-run          # Auto-detect host and dry run"
+    echo ""
+    echo "Auto-detection checks:"
+    echo "  - WSL environment (/proc/version, WSL_DISTRO_NAME)"
+    echo "  - Hostname (Thinker, 1337book, work-wsl)"
+    echo "  - ThinkPad hardware (/proc/acpi/ibm/version, lspci)"
+    echo "  - HP hardware (lspci, dmidecode)"
+    echo "  - Default: thinker"
+    exit 0
     ;;
   *)
     echo "❌ Unknown host: $HOST"

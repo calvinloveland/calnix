@@ -86,6 +86,7 @@ main() {
         
         # 4. Build validation (dry-run) - use correct flake reference
         run_test_suite "Thinker Build Check" "nix build .#nixosConfigurations.thinker.config.system.build.toplevel --dry-run" ""
+        run_test_suite "1337book Build Check" "nix build .#nixosConfigurations.1337book.config.system.build.toplevel --dry-run" ""
         run_test_suite "Work-WSL Build Check" "nix build .#nixosConfigurations.work-wsl.config.system.build.toplevel --dry-run" ""
     else
         log_warning "Nix command not available, skipping flake checks"
