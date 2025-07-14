@@ -38,6 +38,12 @@
     mako # notification system developed by swaywm maintainer
     swaybg # set background
     wluma # backlight control
+    waybar # status bar with CPU and power monitoring
+
+    # Power monitoring tools for waybar
+    powertop # Advanced power usage statistics
+    acpi # Battery information
+    lm_sensors # Hardware monitoring (CPU temp, fan speeds)
 
     # Desktop applications
     alacritty # terminal emulator
@@ -76,41 +82,46 @@
   services.tzupdate = {
     enable = true;
   };
-  systemd.timers."tzupdate.timer".timerConfig = {
-    OnBootSec = "5min";
-    OnUnitActiveSec = "1d";
-  };
+
+  # Enable location services for timezone
+  location.provider = "geoclue2";
+  services.geoclue2.enable = true;
 
   # Audio configuration
   services.pipewire = {
     enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
+    audio.enable = true;
     pulse.enable = true;
+    jack.enable = true;
     wireplumber.enable = true;
   };
 
-  # Security and authentication
-  services.gnome.gnome-keyring.enable = true;
-  security.pam.services.sway.enableGnomeKeyring = true;
-  security.polkit.enable = true;
-  security.pam.services.swaylock = { };
-  security.rtkit.enable = true;
+  hardware.pulseaudio.enable = false; # Use PipeWire instead
 
-  # Sleep configuration
-  systemd.sleep.extraConfig = ''
-    HibernateDelaySec=60min
-  '';
+  # Enable Sway
+  programs.sway = {
+    enable = true;
+    wrapperFeatures.gtk = true;
+    extraPackages = with pkgs; [
+      swaylock
+      swayidle
+      wl-clipboard
+      mako
+      brightnessctl
+      grim
+      slurp
+      rofi
+      waybar # Add waybar to Sway extras
+    ];
+  };
 
-  # Common user groups for desktop functionality
-  users.users.calvin.extraGroups = [
-    "wheel"
-    "networkmanager" 
-    "video"
-    "docker"
-  ];
+  # Enable XDG desktop portal for screen sharing
+  xdg.portal = {
+    enable = true;
+    wlr.enable = true;
+  };
 
-  # Common TLP power management base configuration
+  # TLP power management - base settings
   services.tlp = {
     enable = true;
     settings = {

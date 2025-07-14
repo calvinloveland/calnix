@@ -1,2 +1,4 @@
-[ ] Display power usage / CPU usage / in waybar
+[ ] Display power usage in waybar
 [ ] Set default workspace to 1 instead of 0
+[ ] Fix xdg launch browser
+[X] Fix emojis (no more missing font boxes thingys)
