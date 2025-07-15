@@ -12,7 +12,7 @@ Personal laptop configuration featuring:
 - **Power Management**: ThinkPad-optimized TLP settings
 
 ### 💻 1337book (HP Elitebook)
-HP Elitebook configuration featuring:
+HP Elitebook X G1i 14 AI (896Y1UA ABA) configuration featuring:
 - **Window Manager**: Sway (Wayland compositor)
 - **Gaming**: Steam, Blender, Krita, Aseprite, Dwarf Fortress
 - **Desktop Environment**: Full desktop experience with Bluetooth, audio, etc.

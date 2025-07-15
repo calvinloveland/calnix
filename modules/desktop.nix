@@ -8,6 +8,11 @@
   # Desktop environment configuration shared by all desktop hosts
   # (thinker and 1337book) - excludes work-wsl
   
+  # Import audio configuration module
+  imports = [
+    ./audio.nix
+  ];
+  
   # Home Manager configuration
   home-manager.backupFileExtension = "backup";
 
@@ -49,7 +54,6 @@
     alacritty # terminal emulator
     firefox # browser
     google-chrome # Google has their hooks in me
-    pavucontrol # controls volume
     fortune-kind # good fortunes
     libreoffice # Office suite for documents, spreadsheets, presentations
     
@@ -86,17 +90,6 @@
   # Enable location services for timezone
   location.provider = "geoclue2";
   services.geoclue2.enable = true;
-
-  # Audio configuration
-  services.pipewire = {
-    enable = true;
-    audio.enable = true;
-    pulse.enable = true;
-    jack.enable = true;
-    wireplumber.enable = true;
-  };
-
-  hardware.pulseaudio.enable = false; # Use PipeWire instead
 
   # Enable Sway
   programs.sway = {
