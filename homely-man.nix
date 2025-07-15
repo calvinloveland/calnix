@@ -122,6 +122,21 @@
           modifier = "Mod4";
           terminal = "kitty";
 
+          # Touchpad configuration
+          input = {
+            "type:touchpad" = {
+              tap = "enabled";
+              dwt = "enabled";  # Disable while typing
+              natural_scroll = "enabled";
+              middle_emulation = "enabled";
+              tap_button_map = "lrm";  # Left, right, middle button
+              drag = "enabled";
+              drag_lock = "enabled";  # Enable drag lock (double tap to drag)
+              accel_profile = "adaptive";
+              pointer_accel = "0.2";  # Pointer acceleration
+            };
+          };
+
           # Use actual color values instead of pywal variables during build
           colors = {
             focused = {

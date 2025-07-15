@@ -121,6 +121,19 @@
     wlr.enable = true;
   };
 
+  # Touchpad configuration
+  services.libinput = {
+    enable = true;
+    touchpad = {
+      tapping = true;            # Enable tap to click
+      clickMethod = "clickfinger"; # Use 1/2/3 finger clicks for left/right/middle button
+      tappingDragLock = true;    # Enable double tap to drag
+      naturalScrolling = true;   # Use natural scrolling direction
+      disableWhileTyping = true; # Disable touchpad while typing
+      accelSpeed = 0.2;          # Adjust pointer acceleration
+    };
+  };
+
   # TLP power management - base settings
   services.tlp = {
     enable = true;
