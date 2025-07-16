@@ -126,14 +126,14 @@
           input = {
             "type:touchpad" = {
               tap = "enabled";
-              dwt = "enabled";  # Disable while typing
+              dwt = "enabled"; # Disable while typing
               natural_scroll = "enabled";
               middle_emulation = "enabled";
-              tap_button_map = "lrm";  # Left, right, middle button
+              tap_button_map = "lrm"; # Left, right, middle button
               drag = "enabled";
-              drag_lock = "enabled";  # Enable drag lock (double tap to drag)
+              drag_lock = "enabled"; # Enable drag lock (double tap to drag)
               accel_profile = "adaptive";
-              pointer_accel = "0.2";  # Pointer acceleration
+              pointer_accel = "0.2"; # Pointer acceleration
             };
           };
 
@@ -197,7 +197,7 @@
           };
 
           # Let waybar be managed by systemd/Home Manager
-          bars = [];
+          bars = [ ];
 
           # Key bindings
           keybindings = lib.mkOptionDefault {
@@ -252,11 +252,15 @@
             layer = "top";
             position = "top";
             height = 30;
-            
-            modules-left = ["sway/workspaces" "sway/mode" "custom/media"];
-            modules-center = ["sway/window"];
+
+            modules-left = [
+              "sway/workspaces"
+              "sway/mode"
+              "custom/media"
+            ];
+            modules-center = [ "sway/window" ];
             modules-right = [
-              "cpu" 
+              "cpu"
               "memory"
               "temperature"
               "disk"
@@ -264,7 +268,7 @@
               "network#wifi"
               "network#ethernet"
               "network#disconnected"
-              "pulseaudio" 
+              "pulseaudio"
               "backlight"
               "custom/weather"
               "clock"
@@ -319,7 +323,13 @@
               format-charging = "⚡ {capacity}%";
               format-plugged = "🔌 {capacity}%";
               # Unicode battery icons as fallback
-              format-icons = ["▁" "▂" "▃" "▄" "▅"];
+              format-icons = [
+                "▁"
+                "▂"
+                "▃"
+                "▄"
+                "▅"
+              ];
               tooltip = true;
             };
 
@@ -337,7 +347,11 @@
                 "phone" = "";
                 "portable" = "";
                 "car" = "";
-                "default" = ["" "" ""];
+                "default" = [
+                  ""
+                  ""
+                  ""
+                ];
               };
               scroll-step = 1;
               on-click = "pavucontrol";
@@ -346,14 +360,17 @@
             # Backlight
             "backlight" = {
               format = "{icon} Light: {percent}%";
-              format-icons = ["" ""];
+              format-icons = [
+                ""
+                ""
+              ];
               on-scroll-up = "brightnessctl set +5%";
               on-scroll-down = "brightnessctl set 5%-";
             };
 
             # Network - split into multiple modules for better control
             "network#wifi" = {
-              interface = "wlp*";  # Updated to match your wlp0s20f3 interface
+              interface = "wlp*"; # Updated to match your wlp0s20f3 interface
               format-wifi = " WiFi: {essid} ({signalStrength}%)";
               format-ethernet = "";
               format-disconnected = "";
@@ -628,60 +645,60 @@
 
         ".config/sway/apply-colors.sh" = {
           text = ''
-            #!/bin/sh
-            # Apply pywal colors to Sway configuration
-            if [ -f ~/.cache/wal/colors.sh ]; then
-              . ~/.cache/wal/colors.sh
-              
-              # Create Sway color configuration
-              cat > ~/.cache/wal/colors-sway << EOF
-# Pywal color scheme for Sway
-# Colors (colorscheme: $wallpaper)
-set \$background $color0
-set \$foreground $color15
-set \$cursor $cursor
+                        #!/bin/sh
+                        # Apply pywal colors to Sway configuration
+                        if [ -f ~/.cache/wal/colors.sh ]; then
+                          . ~/.cache/wal/colors.sh
+                          
+                          # Create Sway color configuration
+                          cat > ~/.cache/wal/colors-sway << EOF
+            # Pywal color scheme for Sway
+            # Colors (colorscheme: $wallpaper)
+            set \$background $color0
+            set \$foreground $color15
+            set \$cursor $cursor
 
-set \$color0 $color0
-set \$color1 $color1
-set \$color2 $color2
-set \$color3 $color3
-set \$color4 $color4
-set \$color5 $color5
-set \$color6 $color6
-set \$color7 $color7
-set \$color8 $color8
-set \$color9 $color9
-set \$color10 $color10
-set \$color11 $color11
-set \$color12 $color12
-set \$color13 $color13
-set \$color14 $color14
-set \$color15 $color15
+            set \$color0 $color0
+            set \$color1 $color1
+            set \$color2 $color2
+            set \$color3 $color3
+            set \$color4 $color4
+            set \$color5 $color5
+            set \$color6 $color6
+            set \$color7 $color7
+            set \$color8 $color8
+            set \$color9 $color9
+            set \$color10 $color10
+            set \$color11 $color11
+            set \$color12 $color12
+            set \$color13 $color13
+            set \$color14 $color14
+            set \$color15 $color15
 
-# Window decoration colors
-# class                 border     backgr.    text       indicator  child_border
-client.focused          \$color4   \$color4   \$color0   \$color4   \$color4
-client.focused_inactive \$color8   \$color8   \$color7   \$color8   \$color8
-client.unfocused        \$color0   \$color0   \$color7   \$color0   \$color0
-client.urgent           \$color1   \$color1   \$color15  \$color1   \$color1
-client.placeholder      \$color8   \$color8   \$color7   \$color8   \$color8
+            # Window decoration colors
+            # class                 border     backgr.    text       indicator  child_border
+            client.focused          \$color4   \$color4   \$color0   \$color4   \$color4
+            client.focused_inactive \$color8   \$color8   \$color7   \$color8   \$color8
+            client.unfocused        \$color0   \$color0   \$color7   \$color0   \$color0
+            client.urgent           \$color1   \$color1   \$color15  \$color1   \$color1
+            client.placeholder      \$color8   \$color8   \$color7   \$color8   \$color8
 
-client.background       \$background
-EOF
-              
-              # Create waybar colors configuration
-              cat > ~/.cache/wal/waybar-colors.css << EOF
-/* Pywal colors for waybar */
-@define-color background $color0;
-@define-color foreground $color15;
-@define-color color1 $color1;
-@define-color color2 $color2;
-@define-color color3 $color3;
-@define-color color4 $color4;
-@define-color color5 $color5;
-@define-color color6 $color6;
-EOF
-            fi
+            client.background       \$background
+            EOF
+                          
+                          # Create waybar colors configuration
+                          cat > ~/.cache/wal/waybar-colors.css << EOF
+            /* Pywal colors for waybar */
+            @define-color background $color0;
+            @define-color foreground $color15;
+            @define-color color1 $color1;
+            @define-color color2 $color2;
+            @define-color color3 $color3;
+            @define-color color4 $color4;
+            @define-color color5 $color5;
+            @define-color color6 $color6;
+            EOF
+                        fi
           '';
           executable = true;
         };
@@ -690,10 +707,10 @@ EOF
           text = ''
             #!/bin/bash
             # Weather script for waybar
-            
+
             # Fetch weather information from wttr.in
             WEATHER_INFO=$(curl -s "https://wttr.in/?format=%c|%t|%C")
-            
+
             # Parse the output (format: icon|temperature|condition)
             if [[ $? -eq 0 ]]; then
               IFS='|' read -r ICON TEMP CONDITION <<< "$WEATHER_INFO"

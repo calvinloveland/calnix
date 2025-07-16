@@ -24,22 +24,22 @@
   environment.systemPackages = with pkgs; [
     # Development tools
     vscode
-    
+
     # Work-specific browsers
     firefox
-    
+
     # Additional development utilities
     curl
     jq # JSON processor
-    
+
     # Text processing
     pandoc # Document converter
     libreoffice # Office suite for documents, spreadsheets, presentations
-    
+
     # Database tools
     postgresql # For database work
     sqlite # Lightweight database
-    
+
     # Cloud tools
     awscli2 # AWS CLI
     kubectl # Kubernetes CLI

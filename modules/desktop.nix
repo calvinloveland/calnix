@@ -7,12 +7,12 @@
 {
   # Desktop environment configuration shared by all desktop hosts
   # (thinker and 1337book) - excludes work-wsl
-  
+
   # Import audio configuration module
   imports = [
     ./audio.nix
   ];
-  
+
   # Home Manager configuration
   home-manager.backupFileExtension = "backup";
 
@@ -56,11 +56,11 @@
     google-chrome # Google has their hooks in me
     fortune-kind # good fortunes
     libreoffice # Office suite for documents, spreadsheets, presentations
-    
+
     # Video editing and media
     vlc # Video player and basic editing
     ffmpeg # CLI video processing and stitching tool
-    
+
     # System management
     bashmount # Interactive mount manager for USB drives
   ];
@@ -118,12 +118,12 @@
   services.libinput = {
     enable = true;
     touchpad = {
-      tapping = true;            # Enable tap to click
+      tapping = true; # Enable tap to click
       clickMethod = "clickfinger"; # Use 1/2/3 finger clicks for left/right/middle button
-      tappingDragLock = true;    # Enable double tap to drag
-      naturalScrolling = true;   # Use natural scrolling direction
+      tappingDragLock = true; # Enable double tap to drag
+      naturalScrolling = true; # Use natural scrolling direction
       disableWhileTyping = true; # Disable touchpad while typing
-      accelSpeed = 0.2;          # Adjust pointer acceleration
+      accelSpeed = 0.2; # Adjust pointer acceleration
     };
   };
 

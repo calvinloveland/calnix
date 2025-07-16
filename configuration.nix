@@ -18,7 +18,10 @@
   nix.settings = {
     max-jobs = "auto"; # Use all available CPU cores
     cores = 0; # Use all available CPU cores for each job
-    experimental-features = [ "nix-command" "flakes" ];
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
   };
 
   boot.kernelPackages = pkgs.linuxPackages_latest;

@@ -29,7 +29,7 @@
   fileSystems."/mnt/insta360" = {
     device = "/dev/disk/by-uuid/4A21-0000";
     fsType = "exfat";
-    options = [ 
+    options = [
       "noauto" # Don't mount at boot
       "user" # Allow regular users to mount
       "uid=calvin" # Set owner to calvin
@@ -41,7 +41,7 @@
   fileSystems."/mnt/nas" = {
     device = "//192.168.0.179/best-shared-folder";
     fsType = "cifs";
-    options = [ 
+    options = [
       "noauto" # Don't mount at boot
       "user" # Allow regular users to mount
       "credentials=/home/calvin/.nas-credentials"

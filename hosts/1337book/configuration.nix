@@ -13,7 +13,7 @@
     ../../homely-man.nix
     ../../python-dev.nix
   ];
-  
+
   hardware.enableAllFirmware = true;
 
   # Hostname

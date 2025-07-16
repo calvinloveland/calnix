@@ -9,7 +9,10 @@
   nix.settings = {
     max-jobs = "auto"; # Use all available CPU cores
     cores = 0; # Use all available CPU cores for each job
-    experimental-features = [ "nix-command" "flakes" ];
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
   };
 
   nixpkgs.config.allowUnfree = true;
@@ -25,7 +28,7 @@
     git # version control
     gh # github cli w/ copilot
     wl-clipboard # wl-copy and wl-paste for copy/paste from stdin / stdout
-    
+
     # Archive tools
     zip
     xz
@@ -53,6 +56,7 @@
 
     # Development tools
     ollama # AI model serving
+    nixfmt-tree
     treefmt # unified code formatter
 
     # Utilities

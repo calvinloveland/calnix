@@ -21,69 +21,71 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
-  
-  outputs = {
-    self,
-    nixpkgs,
-    home-manager,
-    nixos-wsl,
-    kickstart-nix-nvim,
-    ...
-  } @ inputs: {
-    nixosConfigurations = {
-      # ThinkPad configuration with gaming
-      thinker = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        specialArgs = { inherit inputs; };
-        modules = [
-          { nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ]; }
-          home-manager.nixosModules.home-manager
-          ./hosts/thinker/configuration.nix
-        ];
-      };
-      
-      # WSL work configuration without gaming
-      work-wsl = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        specialArgs = { inherit inputs; };
-        modules = [
-          { nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ]; }
-          nixos-wsl.nixosModules.wsl
-          ./hosts/work-wsl/configuration.nix
-        ];
-      };
 
-      # HP Elitebook configuration with gaming
-      "1337book" = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        specialArgs = { inherit inputs; };
-        modules = [
-          { nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ]; }
-          home-manager.nixosModules.home-manager
-          ./hosts/1337book/configuration.nix
-        ];
-      };
+  outputs =
+    {
+      self,
+      nixpkgs,
+      home-manager,
+      nixos-wsl,
+      kickstart-nix-nvim,
+      ...
+    }@inputs:
+    {
+      nixosConfigurations = {
+        # ThinkPad configuration with gaming
+        thinker = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { inherit inputs; };
+          modules = [
+            { nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ]; }
+            home-manager.nixosModules.home-manager
+            ./hosts/thinker/configuration.nix
+          ];
+        };
 
-      # Legacy configuration names for backward compatibility
-      nixos = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        specialArgs = { inherit inputs; };
-        modules = [
-          { nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ]; }
-          home-manager.nixosModules.home-manager
-          ./hosts/thinker/configuration.nix
-        ];
-      };
-      
-      Thinker = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        specialArgs = { inherit inputs; };
-        modules = [
-          { nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ]; }
-          home-manager.nixosModules.home-manager
-          ./hosts/thinker/configuration.nix
-        ];
+        # WSL work configuration without gaming
+        work-wsl = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { inherit inputs; };
+          modules = [
+            { nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ]; }
+            nixos-wsl.nixosModules.wsl
+            ./hosts/work-wsl/configuration.nix
+          ];
+        };
+
+        # HP Elitebook configuration with gaming
+        "1337book" = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { inherit inputs; };
+          modules = [
+            { nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ]; }
+            home-manager.nixosModules.home-manager
+            ./hosts/1337book/configuration.nix
+          ];
+        };
+
+        # Legacy configuration names for backward compatibility
+        nixos = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { inherit inputs; };
+          modules = [
+            { nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ]; }
+            home-manager.nixosModules.home-manager
+            ./hosts/thinker/configuration.nix
+          ];
+        };
+
+        Thinker = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { inherit inputs; };
+          modules = [
+            { nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ]; }
+            home-manager.nixosModules.home-manager
+            ./hosts/thinker/configuration.nix
+          ];
+        };
       };
     };
-  };
 }
