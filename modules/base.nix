@@ -51,6 +51,10 @@
     rsync # efficient file synchronization
     exfat # Support for exFAT filesystems (cameras, etc.)
 
+    # Development tools
+    ollama # AI model serving
+    treefmt # unified code formatter
+
     # Utilities
     cowsay
     glow # markdown viewer
