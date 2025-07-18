@@ -10,6 +10,7 @@
     ../../modules/base.nix
     ../../modules/desktop.nix
     ../../modules/gaming.nix
+    ../../modules/intel-gpu.nix  # Import Intel GPU module with VPL support
     ../../homely-man.nix
     ../../python-dev.nix
   ];
