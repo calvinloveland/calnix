@@ -31,6 +31,15 @@
       kickstart-nix-nvim,
       ...
     }@inputs:
+    let
+      # Create an overlay to fix the Darktable build issue
+      darktableOverlay = final: prev: {
+        # Override darktable to disable AVIF support which is causing build issues
+        darktable = prev.darktable.override {
+          libavif = null; # Disable AVIF support to avoid the build error
+        };
+      };
+    in
     {
       nixosConfigurations = {
         # ThinkPad configuration with gaming
@@ -38,7 +47,11 @@
           system = "x86_64-linux";
           specialArgs = { inherit inputs; };
           modules = [
-            { nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ]; }
+            { nixpkgs.overlays = [ 
+                kickstart-nix-nvim.overlays.default
+                darktableOverlay # Add our Darktable fix overlay
+              ]; 
+            }
             home-manager.nixosModules.home-manager
             ./hosts/thinker/configuration.nix
           ];
@@ -49,7 +62,11 @@
           system = "x86_64-linux";
           specialArgs = { inherit inputs; };
           modules = [
-            { nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ]; }
+            { nixpkgs.overlays = [ 
+                kickstart-nix-nvim.overlays.default
+                # No darktable overlay needed for WSL as it doesn't include gaming module
+              ]; 
+            }
             nixos-wsl.nixosModules.wsl
             ./hosts/work-wsl/configuration.nix
           ];
@@ -60,7 +77,11 @@
           system = "x86_64-linux";
           specialArgs = { inherit inputs; };
           modules = [
-            { nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ]; }
+            { nixpkgs.overlays = [ 
+                kickstart-nix-nvim.overlays.default
+                darktableOverlay # Add our Darktable fix overlay
+              ]; 
+            }
             home-manager.nixosModules.home-manager
             ./hosts/1337book/configuration.nix
           ];
@@ -71,7 +92,11 @@
           system = "x86_64-linux";
           specialArgs = { inherit inputs; };
           modules = [
-            { nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ]; }
+            { nixpkgs.overlays = [ 
+                kickstart-nix-nvim.overlays.default 
+                darktableOverlay # Add our Darktable fix overlay
+              ]; 
+            }
             home-manager.nixosModules.home-manager
             ./hosts/thinker/configuration.nix
           ];
@@ -81,7 +106,11 @@
           system = "x86_64-linux";
           specialArgs = { inherit inputs; };
           modules = [
-            { nixpkgs.overlays = [ kickstart-nix-nvim.overlays.default ]; }
+            { nixpkgs.overlays = [ 
+                kickstart-nix-nvim.overlays.default
+                darktableOverlay # Add our Darktable fix overlay
+              ]; 
+            }
             home-manager.nixosModules.home-manager
             ./hosts/thinker/configuration.nix
           ];

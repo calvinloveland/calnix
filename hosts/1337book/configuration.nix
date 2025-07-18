@@ -10,7 +10,6 @@
     ../../modules/base.nix
     ../../modules/desktop.nix
     ../../modules/gaming.nix
-    ../../modules/intel-gpu.nix  # Import Intel GPU module with VPL support
     ../../homely-man.nix
     ../../python-dev.nix
   ];
@@ -19,10 +18,9 @@
 
   # Hostname
   networking.hostName = "1337book";
-
+  
   # HP Elitebook-specific TLP power management settings
   services.tlp.settings = {
-    CPU_MAX_PERF_ON_BAT = 30; # Slightly higher than ThinkPad for HP's power profile
     # Battery health optimization (HP Elitebook specific)
     START_CHARGE_THRESH_BAT0 = 75;
     STOP_CHARGE_THRESH_BAT0 = 85;

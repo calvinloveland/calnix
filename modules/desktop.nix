@@ -78,7 +78,6 @@
   };
 
   # Common desktop services
-  services.thermald.enable = true;
   services.blueman.enable = true;
   services.udisks2.enable = true;
 

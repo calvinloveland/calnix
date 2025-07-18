@@ -16,7 +16,7 @@
     gimp # Image editing and texture creation
     aseprite # Pixel art editor (great for 2D games)
     inkscape # Vector graphics editor for UI and icons
-    darktable # RAW photo processing for textures
+    # darktable # RAW photo processing for textures - DISABLED due to build issues
 
     # Games
     dwarf-fortress-packages.dwarf-fortress-full # fun
@@ -43,4 +43,14 @@
 
   # Add user to docker group for game development
   users.users.calvin.extraGroups = [ "docker" ];
+
+  # Add Steam-specific hardware configuration
+  hardware.steam-hardware.enable = true;
+  hardware.opengl = {
+    enable = true;
+    driSupport32Bit = true; # Required for Steam
+  };
+
+  # Enable Vulkan support
+  hardware.pulseaudio.support32Bit = true; # For Steam
 }
