@@ -20,10 +20,17 @@
   networking.hostName = "1337book";
   
   # HP Elitebook-specific TLP power management settings
-  services.tlp.settings = {
-    # Battery health optimization (HP Elitebook specific)
-    START_CHARGE_THRESH_BAT0 = 75;
-    STOP_CHARGE_THRESH_BAT0 = 85;
+  services.tlp = {
+    enable = true;
+    settings = {
+      CPU_SCALING_GOVERNOR_ON_AC = "performance";      
+      CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
+      CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_performance";
+
+      # Battery health optimization (HP Elitebook specific)
+      START_CHARGE_THRESH_BAT0 = 75;
+      STOP_CHARGE_THRESH_BAT0 = 85;
+    };
   };
 
   # HP-specific optimizations

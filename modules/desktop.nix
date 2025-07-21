@@ -82,9 +82,9 @@
   services.udisks2.enable = true;
 
   # Timezone management
-  services.tzupdate = {
-    enable = true;
-  };
+  # services.tzupdate = {
+  #   enable = true;
+  # };
 
   # Enable location services for timezone
   location.provider = "geoclue2";
@@ -123,21 +123,6 @@
       naturalScrolling = true; # Use natural scrolling direction
       disableWhileTyping = true; # Disable touchpad while typing
       accelSpeed = 0.2; # Adjust pointer acceleration
-    };
-  };
-
-  # TLP power management - base settings
-  services.tlp = {
-    enable = true;
-    settings = {
-      CPU_SCALING_GOVERNOR_ON_AC = "performance";
-      CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
-      CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
-      CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
-      CPU_MIN_PERF_ON_AC = 0;
-      CPU_MAX_PERF_ON_AC = 100;
-      CPU_MIN_PERF_ON_BAT = 0;
-      # CPU_MAX_PERF_ON_BAT and battery thresholds will be set per host
     };
   };
 }

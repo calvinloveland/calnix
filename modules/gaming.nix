@@ -46,11 +46,15 @@
 
   # Add Steam-specific hardware configuration
   hardware.steam-hardware.enable = true;
-  hardware.opengl = {
+  hardware.graphics = {
     enable = true;
-    driSupport32Bit = true; # Required for Steam
+    extraPackages = with pkgs;[    
+      intel-compute-runtime
+      intel-media-driver
+      vpl-gpu-rt 
+    ];
   };
 
   # Enable Vulkan support
-  hardware.pulseaudio.support32Bit = true; # For Steam
+  services.pulseaudio.support32Bit = true; # For Steam
 }
