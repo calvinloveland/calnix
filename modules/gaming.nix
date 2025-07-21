@@ -48,10 +48,10 @@
   hardware.steam-hardware.enable = true;
   hardware.graphics = {
     enable = true;
-    extraPackages = with pkgs;[    
+    extraPackages = with pkgs; [
       intel-compute-runtime
       intel-media-driver
-      vpl-gpu-rt 
+      vpl-gpu-rt
     ];
   };
 
