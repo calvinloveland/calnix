@@ -36,4 +36,5 @@
   # HP-specific optimizations
   # Enable fwupd for firmware updates (HP has good Linux support)
   services.fwupd.enable = true;
+
 }

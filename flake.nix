@@ -20,6 +20,9 @@
       url = "github:nix-community/NixOS-WSL";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixos-hardware = {
+      url = "github:NixOS/nixos-hardware";
+    };
   };
 
   outputs =
@@ -29,6 +32,7 @@
       home-manager,
       nixos-wsl,
       kickstart-nix-nvim,
+      nixos-hardware,
       ...
     }@inputs:
     let
@@ -86,6 +90,8 @@
               ];
             }
             home-manager.nixosModules.home-manager
+            # Add Intel Lunar Lake CPU and GPU support
+            (import "${nixos-hardware}/common/cpu/intel/lunar-lake")
             ./hosts/1337book/configuration.nix
           ];
         };
