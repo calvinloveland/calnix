@@ -84,7 +84,57 @@ fi
 case $HOST in
   thinker)
     echo "🖥️  Rebuilding ThinkPad configuration..."
-    sudo nixos-rebuild switch --flake .#thinker "${EXTRA_ARGS[@]}"
+    #!/usr/bin/env bash
+
+# Use the existing detect_host function from the main script
+detect_host() {
+    # Check if running in WSL
+    if grep -qi microsoft /proc/version 2>/dev/null || [ -n "${WSL_DISTRO_NAME}" ]; then
+        echo "work-wsl"
+        return
+    fi
+    
+    # Check hostname
+    hostname=$(hostname)
+    case $hostname in
+        Thinker|thinker)
+            echo "thinker"
+            return
+            ;;
+        1337book|elitebook)
+            echo "1337book"
+            return
+            ;;
+        work-wsl|work)
+            echo "work-wsl"
+            return
+            ;;
+    esac
+    
+    # Default fallback
+    echo "thinker"
+}
+
+# Get the target from command line or auto-detect
+if [ $# -gt 0 ]; then
+    TARGET="$1"
+    echo "Using specified configuration target: $TARGET"
+else
+    TARGET=$(detect_host)
+    echo "Auto-detected configuration target: $TARGET"
+fi
+
+echo "💻 Rebuilding NixOS configuration..."
+echo "Starting rebuild with target: $TARGET"
+
+# Rebuild with flake and proper target
+sudo nixos-rebuild switch --flake ".#$TARGET"
+
+# Restart waybar to apply changes
+echo "Restarting waybar service..."
+systemctl --user restart waybar
+
+echo "Done! Temperature monitoring should now work correctly."
     ;;
   1337book)
     echo "💻 Rebuilding HP Elitebook configuration..."

@@ -63,6 +63,8 @@
 
     # System management
     bashmount # Interactive mount manager for USB drives
+
+    orca-slicer # Slicer for 3d printing
   ];
 
   # Enable Bluetooth
@@ -76,6 +78,7 @@
       };
     };
   };
+  
 
   # Common desktop services
   services.blueman.enable = true;
@@ -111,7 +114,12 @@
   xdg.portal = {
     enable = true;
     wlr.enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
   };
+  
+  # GTK configuration
+  programs.dconf.enable = true;
+  environment.pathsToLink = [ "/libexec" ]; # for GTK apps
 
   # Touchpad configuration
   services.libinput = {

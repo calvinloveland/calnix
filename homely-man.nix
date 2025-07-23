@@ -262,7 +262,7 @@
             modules-right = [
               "cpu"
               "memory"
-              "temperature"
+              "custom/temperature" # Use our custom temperature module only
               "disk"
               "battery"
               "network#wifi"
@@ -300,13 +300,26 @@
               on-click = "kitty -e ncdu /";
             };
 
-            # CPU temperature
+            # CPU temperature using custom script for reliability
+            "custom/temperature" = {
+              format = " Temp: {}";
+              exec = "${pkgs.bash}/bin/bash ~/.config/waybar/temp-monitor.sh";
+              return-type = "json";
+              interval = 2;
+              on-click = "${pkgs.kitty}/bin/kitty -e ${pkgs.lm_sensors}/bin/sensors";
+            };
+            
+            # Keep original temperature module as fallback
             "temperature" = {
               critical-threshold = 80;
               format-critical = " Temp: {temperatureC}°C!";
               format = " Temp: {temperatureC}°C";
               tooltip-format = "CPU Temperature: {temperatureC}°C";
-              interval = 5;
+              # Explicitly set thermal zone to use the CPU package temperature
+              thermal-zone = 0;
+              # Try explicit hwmon path for Intel CPU
+              hwmon-path = "/sys/class/hwmon/hwmon4/temp1_input";
+              interval = 2;
             };
 
             # Battery with power consumption - optimized for HP Elitebook
@@ -401,7 +414,8 @@
 
             # Weather
             "custom/weather" = {
-              exec = "${pkgs.bash}/bin/bash ~/.config/waybar/weather.sh";
+              # Use the correct path to execute the script with no reliance on homeDirectory
+              exec = "${pkgs.bash}/bin/bash -c 'PATH=${pkgs.curl}/bin:$PATH ~/.config/waybar/weather.sh'";
               interval = 600; # Update every 10 minutes
               return-type = "json";
               format = "{icon} {}";
@@ -425,8 +439,9 @@
                 "default" = "🎜";
               };
               escape = true;
-              exec = "playerctl -a metadata --format '{\"text\": \"{{artist}} - {{markup_escape(title)}}\", \"tooltip\": \"{{playerName}} : {{artist}} - {{album}} - {{markup_escape(title)}}\", \"alt\": \"{{status}}\", \"class\": \"{{status}}\"}' -F";
-              on-click = "playerctl play-pause";
+              # Ensure playerctl is available
+              exec = "${pkgs.playerctl}/bin/playerctl -a metadata --format '{\"text\": \"{{artist}} - {{markup_escape(title)}}\", \"tooltip\": \"{{playerName}} : {{artist}} - {{album}} - {{markup_escape(title)}}\", \"alt\": \"{{status}}\", \"class\": \"{{status}}\"}' -F";
+              on-click = "${pkgs.playerctl}/bin/playerctl play-pause";
             };
 
             # Clock
@@ -497,14 +512,14 @@
             margin: 0 2px;
           }
 
-          #temperature {
+          #temperature, #custom-temperature {
             background-color: #f39c12;
             color: #000000;
             padding: 0 8px;
             margin: 0 2px;
           }
 
-          #temperature.critical {
+          #temperature.critical, #custom-temperature.critical {
             background-color: #eb4d4b;
           }
 
@@ -719,6 +734,37 @@
             else
               # If curl fails, show error message
               echo "{\"text\": \"Weather Unavailable\", \"alt\": \"Error\", \"tooltip\": \"Weather service is currently unavailable\"}"
+            fi
+          '';
+          executable = true;
+        };
+
+        # Custom script for reliable temperature monitoring
+        ".config/waybar/temp-monitor.sh" = {
+          text = ''
+            #!/bin/sh
+            # Get CPU temperature directly from sensors
+            CPU_TEMP=$(${pkgs.lm_sensors}/bin/sensors -j coretemp-isa-0000 | 
+                      ${pkgs.jq}/bin/jq -r '."coretemp-isa-0000"."Package id 0"."temp1_input"')
+            
+            # Format temperature and output as JSON for waybar
+            if [ -n "$CPU_TEMP" ] && [ "$CPU_TEMP" != "null" ]; then
+              TEMP=$(printf "%.1f" $CPU_TEMP)
+              echo "{\"text\": \"$TEMP°C\", \"tooltip\": \"CPU Temperature: $TEMP°C\"}"
+            else
+              # Fallback to alternative sensor
+              CPU_TEMP=$(${pkgs.lm_sensors}/bin/sensors -j | 
+                        ${pkgs.jq}/bin/jq -r 'to_entries[] | select(.key | startswith("coretemp")) | 
+                        .value | to_entries[] | select(.key | contains("Package")) | 
+                        .value | to_entries[] | select(.key | endswith("_input")) | .value' | 
+                        ${pkgs.coreutils}/bin/head -n1)
+              
+              if [ -n "$CPU_TEMP" ] && [ "$CPU_TEMP" != "null" ]; then
+                TEMP=$(printf "%.1f" $CPU_TEMP)
+                echo "{\"text\": \"$TEMP°C\", \"tooltip\": \"CPU Temperature: $TEMP°C\"}"
+              else
+                echo "{\"text\": \"N/A\", \"tooltip\": \"Temperature unavailable\"}"
+              fi
             fi
           '';
           executable = true;
