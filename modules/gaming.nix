@@ -16,7 +16,7 @@
     gimp # Image editing and texture creation
     aseprite # Pixel art editor (great for 2D games)
     inkscape # Vector graphics editor for UI and icons
-    # darktable # RAW photo processing for textures - DISABLED due to build issues
+    darktable # RAW photo processing for textures - DISABLED due to build issues
 
     # Games
     dwarf-fortress-packages.dwarf-fortress-full # fun
