@@ -212,11 +212,19 @@
   };
   virtualisation.docker = {
     enable = true;
+    # When using Docker rootless, we need to disable the Docker daemon
+    # and explicitly configure rootless mode for our user
+    enableOnBoot = false; # This prevents the system-wide Docker daemon from starting
     rootless = {
       enable = true;
       setSocketVariable = true;
     };
   };
+  
+  # Ensure the required package is available for rootless Docker
+  environment.systemPackages = with pkgs; [
+    dockerContainerd # Required for rootless Docker
+  ];
 
   system.stateVersion = "25.05";
 }
