@@ -14,6 +14,10 @@
   # Home Manager configuration
   home-manager.backupFileExtension = "backup";
 
+  nixpkgs.config.permittedInsecurePackages = [
+    "libsoup-2.74.3"
+  ];
+
   # Enable parallel building for faster compilation
   nix.settings = {
     max-jobs = "auto"; # Use all available CPU cores
@@ -212,19 +216,6 @@
   };
   virtualisation.docker = {
     enable = true;
-    # When using Docker rootless, we need to disable the Docker daemon
-    # and explicitly configure rootless mode for our user
-    enableOnBoot = false; # This prevents the system-wide Docker daemon from starting
-    rootless = {
-      enable = true;
-      setSocketVariable = true;
-    };
   };
-  
-  # Ensure the required package is available for rootless Docker
-  environment.systemPackages = with pkgs; [
-    dockerContainerd # Required for rootless Docker
-  ];
-
   system.stateVersion = "25.05";
 }

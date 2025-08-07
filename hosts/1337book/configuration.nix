@@ -16,6 +16,9 @@
 
   hardware.enableAllFirmware = true;
 
+  nixpkgs.config.permittedInsecurePackages = [
+    "libsoup-2.74.3"
+  ];
   # Hostname
   networking.hostName = "1337book";
 
