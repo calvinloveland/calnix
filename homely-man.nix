@@ -251,7 +251,7 @@
           mainBar = {
             layer = "top";
             position = "top";
-            height = 30;
+            height = 38; # increased from 30 to satisfy modules' minimum height
 
             modules-left = [
               "sway/workspaces"
@@ -277,7 +277,7 @@
 
             # CPU usage with detailed monitoring
             "cpu" = {
-              format = " CPU: {usage}%";
+              format = "CPU {usage}%";
               tooltip-format = "CPU Usage: {usage}%\nLoad: {load}";
               interval = 2;
               on-click = "kitty -e htop";
@@ -285,7 +285,7 @@
 
             # Memory usage
             "memory" = {
-              format = " RAM: {}%";
+              format = "RAM {percentage}%";
               tooltip-format = "Memory: {used:0.1f}G / {total:0.1f}G ({percentage}%)\nSwap: {swapUsed:0.1f}G / {swapTotal:0.1f}G";
               interval = 2;
               on-click = "kitty -e htop";
@@ -293,7 +293,7 @@
 
             # Disk space
             "disk" = {
-              format = " Disk: {percentage_used}%";
+              format = "Disk {percentage_used}%";
               path = "/";
               interval = 30;
               tooltip-format = "Disk usage: {used} used out of {total} on {path} ({percentage_used}%)";
@@ -302,7 +302,7 @@
 
             # CPU temperature using custom script for reliability
             "custom/temperature" = {
-              format = " Temp: {}";
+              format = "Temp {}";
               exec = "${pkgs.bash}/bin/bash ~/.config/waybar/temp-monitor.sh";
               return-type = "json";
               interval = 2;
@@ -312,8 +312,8 @@
             # Keep original temperature module as fallback
             "temperature" = {
               critical-threshold = 80;
-              format-critical = " Temp: {temperatureC}°C!";
-              format = " Temp: {temperatureC}°C";
+              format-critical = "Temp {temperatureC}°C!";
+              format = "Temp {temperatureC}°C";
               tooltip-format = "CPU Temperature: {temperatureC}°C";
               # Explicitly set thermal zone to use the CPU package temperature
               thermal-zone = 0;
@@ -331,52 +331,26 @@
                 "warning" = 30;
                 "critical" = 15;
               };
-              # Using Unicode symbols that don't require special fonts
-              format = "{capacity}% {icon}";
+              format = "{capacity}%";
               format-charging = "⚡ {capacity}%";
               format-plugged = "🔌 {capacity}%";
-              # Unicode battery icons as fallback
-              format-icons = [
-                "▁"
-                "▂"
-                "▃"
-                "▄"
-                "▅"
-              ];
               tooltip = true;
             };
 
             # Audio
             "pulseaudio" = {
-              format = "{icon} Vol: {volume}%";
-              format-bluetooth = " BT: {volume}%";
-              format-muted = " Muted";
-              format-source = " Mic: {volume}%";
-              format-source-muted = " Mic Off";
-              format-icons = {
-                "headphone" = "";
-                "hands-free" = "";
-                "headset" = "";
-                "phone" = "";
-                "portable" = "";
-                "car" = "";
-                "default" = [
-                  ""
-                  ""
-                  ""
-                ];
-              };
+              format = "Vol {volume}%";
+              format-bluetooth = "BT {volume}%";
+              format-muted = "Muted";
+              format-source = "Mic {volume}%";
+              format-source-muted = "Mic Off";
               scroll-step = 1;
               on-click = "pavucontrol";
             };
 
             # Backlight
             "backlight" = {
-              format = "{icon} Light: {percent}%";
-              format-icons = [
-                ""
-                ""
-              ];
+              format = "Light {percent}%";
               on-scroll-up = "brightnessctl set +5%";
               on-scroll-down = "brightnessctl set 5%-";
             };
@@ -384,7 +358,7 @@
             # Network - split into multiple modules for better control
             "network#wifi" = {
               interface = "wlp*"; # Updated to match your wlp0s20f3 interface
-              format-wifi = " WiFi: {essid} ({signalStrength}%)";
+              format-wifi = "WiFi {essid} ({signalStrength}%)";
               format-ethernet = "";
               format-disconnected = "";
               tooltip-format-wifi = "WiFi: {essid} ({signalStrength}%)\nIP: {ipaddr}/{cidr}\nFrequency: {frequency}GHz\nUp: {bandwidthUpBits} Down: {bandwidthDownBits}";
@@ -395,7 +369,7 @@
             "network#ethernet" = {
               interface = "eth*";
               format-wifi = "";
-              format-ethernet = " Net: {ipaddr}/{cidr}";
+              format-ethernet = "Net {ipaddr}/{cidr}";
               format-disconnected = "";
               tooltip-format-ethernet = "Ethernet: {ifname}\nIP: {ipaddr}/{cidr}\nUp: {bandwidthUpBits} Down: {bandwidthDownBits}";
               interval = 5;
@@ -406,7 +380,7 @@
               interface = "*";
               format-wifi = "";
               format-ethernet = "";
-              format-disconnected = "⚠ Network Down";
+              format-disconnected = "Net Down";
               interval = 5;
               tooltip-format-disconnected = "No network connection";
               on-click = "kitty -e nmtui";
@@ -414,8 +388,7 @@
 
             # Weather
             "custom/weather" = {
-              # Use the correct path to execute the script with no reliance on homeDirectory
-              exec = "${pkgs.bash}/bin/bash -c 'PATH=${pkgs.curl}/bin:$PATH ~/.config/waybar/weather.sh'";
+              exec = "${pkgs.bash}/bin/bash ~/.config/waybar/weather.sh";
               interval = 600; # Update every 10 minutes
               return-type = "json";
               format = "{icon} {}";
@@ -431,23 +404,19 @@
 
             # Media player
             "custom/media" = {
-              format = "{icon} Media: {}";
+              format = "Media {}";
               return-type = "json";
               max-length = 40;
-              format-icons = {
-                "spotify" = "";
-                "default" = "🎜";
-              };
+              format-icons = { };
               escape = true;
-              # Ensure playerctl is available
               exec = "${pkgs.playerctl}/bin/playerctl -a metadata --format '{\"text\": \"{{artist}} - {{markup_escape(title)}}\", \"tooltip\": \"{{playerName}} : {{artist}} - {{album}} - {{markup_escape(title)}}\", \"alt\": \"{{status}}\", \"class\": \"{{status}}\"}' -F";
               on-click = "${pkgs.playerctl}/bin/playerctl play-pause";
             };
 
             # Clock
             "clock" = {
-              format = " {:%H:%M}";
-              format-alt = " {:%Y-%m-%d}";
+              format = "{:%H:%M}";
+              format-alt = "{:%Y-%m-%d}";
               tooltip-format = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
             };
 
@@ -459,169 +428,115 @@
           };
         };
 
-        # Simple styling
+        # Softer, semi-transparent styling with higher contrast
         style = ''
+          /* Softer, semi-transparent styling with higher contrast */
+          
+          /* Palette (light background, dark text) */
+          @define-color background rgba(248, 250, 252, 0.92);
+          @define-color foreground #111827;
+          @define-color accent #8aadf4;
+          @define-color warning #f9e2af;
+          @define-color danger #f38ba8;
+          @define-color muted #6b7280;
+          @define-color surface rgba(0, 0, 0, 0.05);
+          @define-color surfaceHover rgba(0, 0, 0, 0.08);
+          @define-color border rgba(0, 0, 0, 0.20);
+
           * {
-            font-family: "DejaVu Sans Mono", FontAwesome;
+            font-family: "FiraCode Nerd Font Mono", "Fira Code", "DejaVu Sans Mono", "Noto Color Emoji";
             font-size: 13px;
           }
 
+          /* Improve label legibility and spacing */
+          label {
+            color: @foreground;
+            padding: 0;
+            margin: 0;
+            letter-spacing: 0;
+            font-weight: 500;
+          }
+
           window#waybar {
-            background-color: rgba(43, 48, 59, 0.9);
-            color: #ffffff;
+            background-color: @background;
+            color: @foreground;
+            border-bottom: 1px solid @border;
           }
 
+          /* Workspaces */
+          #workspaces { margin: 0 4px; }
           #workspaces button {
-            padding: 0 5px;
-            background-color: transparent;
-            color: #ffffff;
-            border-bottom: 3px solid transparent;
+            padding: 0 8px;
+            margin: 6px 2px;
+            border-radius: 8px;
+            color: @foreground;
+            background: transparent;
+            border: 1px solid transparent;
+            transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
           }
-
           #workspaces button:hover {
-            background: rgba(0, 0, 0, 0.2);
+            background: @surfaceHover;
+            border-color: @border;
           }
-
           #workspaces button.focused {
-            background-color: #64727D;
-            border-bottom: 3px solid #ffffff;
+            background: @surfaceHover;
+            border-color: @border;
+            color: @foreground;
           }
-
           #workspaces button.urgent {
-            background-color: #eb4d4b;
-          }
-
-          #cpu {
-            background-color: #2ecc71;
-            color: #000000;
-            padding: 0 8px;
-            margin: 0 2px;
-          }
-
-          #memory {
-            background-color: #9b59b6;
+            background: rgba(243, 139, 168, 0.45);
             color: #ffffff;
-            padding: 0 8px;
-            margin: 0 2px;
+            border-color: rgba(243, 139, 168, 0.6);
           }
 
-          #disk {
-            background-color: #546E7A;
-            color: #ffffff;
-            padding: 0 8px;
-            margin: 0 2px;
-          }
-
-          #temperature, #custom-temperature {
-            background-color: #f39c12;
-            color: #000000;
-            padding: 0 8px;
-            margin: 0 2px;
-          }
-
-          #temperature.critical, #custom-temperature.critical {
-            background-color: #eb4d4b;
-          }
-
-          #battery {
-            background-color: #ffffff;
-            color: #000000;
-            padding: 0 8px;
-            margin: 0 2px;
-          }
-
-          #battery.charging {
-            background-color: #26A65B;
-            color: #ffffff;
-          }
-
-          #battery.warning:not(.charging) {
-            background-color: #ffbe61;
-            color: black;
-          }
-
-          #battery.critical:not(.charging) {
-            background-color: #f53c3c;
-            color: white;
-            animation-name: blink;
-            animation-duration: 0.5s;
-            animation-timing-function: linear;
-            animation-iteration-count: infinite;
-            animation-direction: alternate;
-          }
-
-          #network, #network\\.wifi, #network\\.ethernet, #network\\.disconnected {
-            background-color: #2980b9;
-            color: #ffffff;
-            padding: 0 8px;
-            margin: 0 2px;
-          }
-
-          #network\\.disconnected {
-            background-color: #f53c3c;
-          }
-
-          #pulseaudio {
-            background-color: #f1c40f;
-            color: #000000;
-            padding: 0 8px;
-            margin: 0 2px;
-          }
-
-          #pulseaudio.muted {
-            background-color: #90b1b1;
-            color: #2a5c45;
-          }
-
-          #backlight {
-            background-color: #90b1b1;
-            color: #000000;
-            padding: 0 8px;
-            margin: 0 2px;
-          }
-
-          #custom-weather {
-            background-color: #7DAEA3;
-            color: #000000;
-            padding: 0 8px;
-            margin: 0 2px;
-          }
-
-          #clock {
-            background-color: #64727D;
-            padding: 0 8px;
-            margin: 0 2px;
-          }
-
-          #custom-media {
-            background-color: #66cc99;
-            color: #2a5c45;
-            padding: 0 8px;
-            margin: 0 4px;
-            min-width: 100px;
-          }
-
-          #custom-media.playing {
-            background-color: #2980b9;
-            color: #ffffff;
-          }
-
-          #custom-media.paused {
-            background-color: #90b1b1;
-            color: #2a5c45;
-          }
-
+          /* Unified underline-accent style for all modules */
+          #cpu, #memory, #disk,
+          #custom-temperature, #temperature,
+          #battery,
+          #network, #network.wifi, #network.ethernet, #network.disconnected,
+          #pulseaudio,
+          #backlight,
+          #custom-weather,
+          #clock,
+          #custom-media,
           #tray {
-            padding: 0 8px;
-            margin: 0 2px;
+            background: transparent;
+            color: @foreground;
+            padding: 0 10px;
+            margin: 8px 6px 4px 6px;
+            border: none;
+            border-bottom: 2px solid @accent;
+            border-radius: 0;
           }
 
-          @keyframes blink {
-            to {
-              background-color: #ffffff;
-              color: #000000;
-            }
+          /* Strong override so digits never look grey (no !important for GTK) */
+          window#waybar label,
+          window#waybar label *,
+          window#waybar .label,
+          window#waybar .text,
+          window#waybar .value {
+            color: @foreground;
+            opacity: 1;
           }
+
+          /* Global default for everything inside Waybar */
+          window#waybar, window#waybar * {
+            color: @foreground;
+            opacity: 1;
+          }
+
+          /* State-based accents aligned with underline style */
+          #pulseaudio.muted, #pulseaudio.muted * { color: @muted; }
+          #custom-media.paused, #custom-media.paused * { color: @muted; }
+
+          #battery.charging { border-bottom-color: rgba(138, 173, 244, 0.8); }
+          #battery.warning:not(.charging) { border-bottom-color: @warning; }
+          #battery.critical:not(.charging) { border-bottom-color: @danger; }
+
+          #network.disconnected { border-bottom-color: @danger; font-weight: 600; }
+
+          #custom-media.playing { border-bottom-color: @accent; }
+          #custom-media.paused { border-bottom-color: @border; }
         '';
       };
 
@@ -720,23 +635,38 @@
 
         ".config/waybar/weather.sh" = {
           text = ''
-            #!/bin/bash
-            # Weather script for waybar
+            #!${pkgs.bash}/bin/bash
+            # Weather script for waybar (Nix-friendly)
 
-            # Fetch weather information from wttr.in
-            WEATHER_INFO=$(curl -s "https://wttr.in/?format=%c|%t|%C")
+            # Fetch weather information from wttr.in using Nix-provided curl
+            WEATHER_INFO=$(${pkgs.curl}/bin/curl -s "https://wttr.in/?format=%c|%t|%C")
 
             # Parse the output (format: icon|temperature|condition)
-            if [[ $? -eq 0 ]]; then
+            if [[ $? -eq 0 && -n "$WEATHER_INFO" ]]; then
               IFS='|' read -r ICON TEMP CONDITION <<< "$WEATHER_INFO"
               # Format as JSON for waybar's custom module
-              echo "{\"text\": \"$TEMP\", \"alt\": \"$CONDITION\", \"tooltip\": \"Condition: $CONDITION\nTemperature: $TEMP\"}"
+              echo "{\"text\": \"$TEMP\", \"alt\": \"$CONDITION\", \"tooltip\": \"Condition: $CONDITION\\nTemperature: $TEMP\"}"
             else
               # If curl fails, show error message
               echo "{\"text\": \"Weather Unavailable\", \"alt\": \"Error\", \"tooltip\": \"Weather service is currently unavailable\"}"
             fi
           '';
           executable = true;
+        };
+
+        # Provide a default pywal CSS so Waybar's @import never fails on first start
+        ".cache/wal/waybar-colors.css" = {
+          text = ''
+            /* Default colors (will be overwritten by apply-colors.sh when wal runs) */
+            @define-color background rgba(24, 25, 28, 0.75);
+            @define-color foreground #e5e7eb;
+            @define-color color1 #8aadf4;
+            @define-color color2 #a6e3a1;
+            @define-color color3 #f9e2af;
+            @define-color color4 #94e2d5;
+            @define-color color5 #f5c2e7;
+            @define-color color6 #89dceb;
+          '';
         };
 
         # Custom script for reliable temperature monitoring
