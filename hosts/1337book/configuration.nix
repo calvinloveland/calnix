@@ -40,4 +40,8 @@
   # Enable fwupd for firmware updates (HP has good Linux support)
   services.fwupd.enable = true;
 
+  # File manager support services
+  services.gvfs.enable = true; # Trash, network shares, MTP
+  security.polkit.enable = true; # Polkit backend; agent started via Home Manager
+
 }

@@ -8,11 +8,17 @@
 {
   # Ensure calvin user exists
   users.users.calvin.isNormalUser = true;
+  users.users.calvin.extraGroups = [ "wheel" "audio" "video" "input" "networkmanager" ];
+
 
   # Home Manager user configuration
   home-manager.users.calvin =
     { pkgs, ... }:
     {
+      # Ensure GUI apps (VS Code, etc.) see Docker rootless socket
+      home.sessionVariables = {
+        DOCKER_HOST = "unix:///run/user/1000/docker.sock";
+      };
       # Allow unfree packages for this user
       nixpkgs.config.allowUnfree = true;
 
@@ -40,6 +46,14 @@
         # Development tools
         pkgs.vscode # Visual Studio Code editor
         pkgs.kitty # Kitty terminal emulator
+        pkgs.nodejs # Node.js with npm
+  # GUI file manager (Thunar) and helpers
+  pkgs.xfce.thunar
+  pkgs.xfce.thunar-volman
+  pkgs.xfce.thunar-archive-plugin
+  pkgs.xfce.tumbler
+  pkgs.file-roller
+  pkgs.lxqt.lxqt-policykit
       ];
 
       # Set default applications
@@ -72,6 +86,10 @@
         '';
       };
 
+      programs.bash = {
+        enable = true;
+      };
+
       programs.git = {
         enable = true;
         userName = "Calvin Loveland";
@@ -84,6 +102,8 @@
         vimAlias = true;
         viAlias = true;
       };
+
+  # VS Code settings are not managed here to allow in-application edits.
 
       programs.swaylock.enable = true;
 
@@ -185,6 +205,7 @@
           assigns = {
             "1" = [ { class = "Code"; } ]; # VS Code uses class "Code"
             "2" = [
+              { app_id = "google-chrome"; }
               { class = "Google-chrome"; }
               { class = "Chromium"; }
               { class = "chrome"; }
@@ -201,14 +222,24 @@
 
           # Key bindings
           keybindings = lib.mkOptionDefault {
-            # Audio controls (using WirePlumber)
-            "XF86AudioRaiseVolume" = "exec wpctl set-volume @DEFAULT_SINK@ 5%+";
-            "XF86AudioLowerVolume" = "exec wpctl set-volume @DEFAULT_SINK@ 5%-";
-            "XF86AudioMute" = "exec wpctl set-mute @DEFAULT_SINK@ toggle";
+            # File manager
+            "${modifier}+e" = "exec thunar";
+            # Audio volume keys (robust wrapper script tries both PipeWire aliases)
+            "XF86AudioRaiseVolume" = "exec ~/.config/sway/volume.sh up 5%";
+            "XF86AudioLowerVolume" = "exec ~/.config/sway/volume.sh down 5%";
+            "XF86AudioMute" = "exec ~/.config/sway/volume.sh mute";
+            # Mic mute toggle
+            "XF86AudioMicMute" = "exec ~/.config/sway/volume.sh mic-mute";
 
-            # Brightness controls (using brightnessctl)
-            "XF86MonBrightnessUp" = "exec brightnessctl set +10%";
-            "XF86MonBrightnessDown" = "exec brightnessctl set 1";
+            # Media transport keys
+            "XF86AudioPlay" = "exec playerctl play-pause";
+            "XF86AudioNext" = "exec playerctl next";
+            "XF86AudioPrev" = "exec playerctl previous";
+            "XF86AudioStop" = "exec playerctl stop";
+
+            # Brightness controls (wrapper handles common device names)
+            "XF86MonBrightnessUp" = "exec ~/.config/sway/brightness.sh up 10%";
+            "XF86MonBrightnessDown" = "exec ~/.config/sway/brightness.sh down 10%";
 
             # Bluetooth controls
             "${modifier}+b" = "exec blueberry"; # Open Bluetooth manager GUI
@@ -220,6 +251,7 @@
             # Alternative: choose wallpaper with file picker
             "${modifier}+Shift+w" = "exec ~/.config/sway/choose-wallpaper.sh";
           };
+
           startup = [
             { command = "wal -R"; } # Restore last pywal color scheme
             { command = "~/.config/sway/apply-colors.sh"; } # Apply colors to Sway
@@ -230,6 +262,8 @@
             { command = "sleep 3 && google-chrome-stable"; }
             { command = "sleep 4 && kitty"; }
             { command = "sleep 5 && steam"; }
+            # Polkit agent for auth dialogs (mounting, etc.)
+            { command = "lxqt-policykit"; }
           ];
         };
 
@@ -696,6 +730,50 @@
                 echo "{\"text\": \"N/A\", \"tooltip\": \"Temperature unavailable\"}"
               fi
             fi
+          '';
+          executable = true;
+        };
+
+        ".config/sway/volume.sh" = {
+          text = ''
+            #!${pkgs.bash}/bin/bash
+            set -euo pipefail
+            action="''${1:-up}"
+            step="''${2:-5%}"
+            sink1="@DEFAULT_SINK@"
+            sink2="@DEFAULT_AUDIO_SINK@"
+            source1="@DEFAULT_SOURCE@"
+            source2="@DEFAULT_AUDIO_SOURCE@"
+            case "$action" in
+              up)
+                wpctl set-volume "$sink1" "''${step}+" || wpctl set-volume "$sink2" "''${step}+" ;;
+              down)
+                wpctl set-volume "$sink1" "''${step}-" || wpctl set-volume "$sink2" "''${step}-" ;;
+              mute)
+                wpctl set-mute "$sink1" toggle || wpctl set-mute "$sink2" toggle ;;
+              mic-mute)
+                wpctl set-mute "$source1" toggle || wpctl set-mute "$source2" toggle ;;
+            esac
+          '';
+          executable = true;
+        };
+
+        ".config/sway/brightness.sh" = {
+          text = ''
+            #!${pkgs.bash}/bin/bash
+            set -euo pipefail
+            dir="''${1:-up}"
+            step="''${2:-10%}"
+            case "$dir" in
+              up)
+                ${pkgs.brightnessctl}/bin/brightnessctl set "+''${step}" \
+                  || ${pkgs.brightnessctl}/bin/brightnessctl -d intel_backlight set "+''${step}" \
+                  || ${pkgs.brightnessctl}/bin/brightnessctl -d amdgpu_bl0 set "+''${step}" ;;
+              down)
+                ${pkgs.brightnessctl}/bin/brightnessctl set "''${step}-" \
+                  || ${pkgs.brightnessctl}/bin/brightnessctl -d intel_backlight set "''${step}-" \
+                  || ${pkgs.brightnessctl}/bin/brightnessctl -d amdgpu_bl0 set "''${step}-" ;;
+            esac
           '';
           executable = true;
         };

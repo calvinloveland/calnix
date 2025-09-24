@@ -14,9 +14,6 @@
   # Home Manager configuration
   home-manager.backupFileExtension = "backup";
 
-  nixpkgs.config.permittedInsecurePackages = [
-    "libsoup-2.74.3"
-  ];
 
   # Enable parallel building for faster compilation
   nix.settings = {
@@ -117,6 +114,8 @@
 
     wget # w getting stuff
     wluma # backlight control
+
+    calibre # e-book management
   ];
   nixpkgs.config.allowUnfree = true;
   networking.hostName = "Thinker";
