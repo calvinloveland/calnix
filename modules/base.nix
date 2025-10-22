@@ -65,6 +65,8 @@
     wget
     nixfmt-rfc-style # nix formatter
     home-manager # manage homes
+
+    calibre # ebook management
   ];
 
   # Common programs

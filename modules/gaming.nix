@@ -20,6 +20,8 @@
 
     # Games
     dwarf-fortress-packages.dwarf-fortress-full # fun
+
+    discord # for saying gamer words
   ];
 
   # Steam configuration
