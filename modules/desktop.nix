@@ -56,6 +56,10 @@
     google-chrome # Google has their hooks in me
     fortune-kind # good fortunes
     libreoffice # Office suite for documents, spreadsheets, presentations
+  chirp # Radio programming tool
+  (handbrake.override { useGtk = true; }) # HandBrake GUI build
+  (writeShellScriptBin "handbrake" ''exec ${handbrake}/bin/ghb "$@"'') # Friendly GUI launcher
+  kdePackages.k3b # KDE disc burning suite
 
     # Video editing and media
     vlc # Video player and basic editing

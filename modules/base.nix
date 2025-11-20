@@ -82,6 +82,7 @@
       "wheel"
       "networkmanager"
       "video"
+      "dialout" # Serial/USB programming (e.g. radios)
     ];
     shell = pkgs.fish;
   };

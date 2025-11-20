@@ -92,9 +92,13 @@
 
       programs.git = {
         enable = true;
-        userName = "Calvin Loveland";
-        userEmail = "calvinloveland@gmail.com";
-        extraConfig.safe.directory = "*";
+        settings = {
+          user = {
+            name = "Calvin Loveland";
+            email = "calvinloveland@gmail.com";
+          };
+          safe.directory = "*";
+        };
       };
 
       programs.neovim = {
