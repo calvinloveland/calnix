@@ -16,6 +16,7 @@ NC='\033[0m'
 TOTAL_TESTS=0
 PASSED_TESTS=0
 FAILED_TESTS=0
+HOSTS=()
 
 log_info() {
     echo -e "${BLUE}ℹ️  $1${NC}"
@@ -43,7 +44,8 @@ run_test_suite() {
     
     TOTAL_TESTS=$((TOTAL_TESTS + 1))
     
-    local original_dir=$(pwd)
+    local original_dir
+    original_dir=$(pwd)
     if [ -n "$test_dir" ]; then
         cd "$test_dir"
     fi
@@ -61,6 +63,17 @@ run_test_suite() {
     fi
 }
 
+discover_hosts() {
+    HOSTS=()
+    local hosts_dir="$PROJECT_ROOT/hosts"
+    if [ -d "$hosts_dir" ]; then
+        for dir in "$hosts_dir"/*; do
+            [ -d "$dir" ] || continue
+            HOSTS+=("$(basename "$dir")")
+        done
+    fi
+}
+
 # Main test execution
 main() {
     echo -e "${BLUE}🚀 Calvin's NixOS Configuration Test Suite${NC}"
@@ -72,6 +85,7 @@ main() {
     PROJECT_ROOT="$(dirname "$0")/.."
     cd "$PROJECT_ROOT"
     PROJECT_ROOT=$(pwd)  # Get absolute path
+    discover_hosts
     
     # 1. Configuration validation
     run_test_suite "Configuration Validation" "python3 tests/validate_config.py" ""
@@ -84,10 +98,13 @@ main() {
         # Use the main project flake, not the tests flake
         run_test_suite "Nix Flake Check" "nix flake check --no-build ." ""
         
-        # 4. Build validation (dry-run) - use correct flake reference
-        run_test_suite "Thinker Build Check" "nix build .#nixosConfigurations.thinker.config.system.build.toplevel --dry-run" ""
-        run_test_suite "1337book Build Check" "nix build .#nixosConfigurations.1337book.config.system.build.toplevel --dry-run" ""
-        run_test_suite "Work-WSL Build Check" "nix build .#nixosConfigurations.work-wsl.config.system.build.toplevel --dry-run" ""
+        if [ ${#HOSTS[@]} -eq 0 ]; then
+            log_warning "No host directories found; skipping build checks"
+        else
+            for host in "${HOSTS[@]}"; do
+                run_test_suite "${host} Build Check" "nix build .#nixosConfigurations.${host}.config.system.build.toplevel --dry-run" ""
+            done
+        fi
     else
         log_warning "Nix command not available, skipping flake checks"
     fi

@@ -32,6 +32,14 @@ class ConfigValidator:
             
         self.errors = []
         self.warnings = []
+        hosts_dir = self.root / "hosts"
+        if hosts_dir.exists():
+            self.hosts = sorted(
+                [path.name for path in hosts_dir.iterdir() if path.is_dir()]
+            )
+        else:
+            self.hosts = []
+            self.warning("hosts directory not found; no host configurations detected")
         print(f"🔍 Validating configuration in: {self.root}")
         
     def error(self, msg: str):
@@ -48,9 +56,6 @@ class ConfigValidator:
         required_files = [
             "flake.nix",
             "rebuild.sh", 
-            "hosts/thinker/configuration.nix",
-            "hosts/1337book/configuration.nix",
-            "hosts/work-wsl/configuration.nix",
             "modules/base.nix",
             "modules/desktop.nix",
             "modules/gaming.nix",
@@ -64,6 +69,16 @@ class ConfigValidator:
                 self.error(f"Missing required file: {file_path}")
             else:
                 self.success(f"Found {file_path}")
+
+        if not self.hosts:
+            self.warning("No host configurations declared under hosts/ (skipping host-specific checks)")
+        else:
+            for host in self.hosts:
+                config_file = self.root / f"hosts/{host}/configuration.nix"
+                if not config_file.exists():
+                    self.error(f"Missing required file: hosts/{host}/configuration.nix")
+                else:
+                    self.success(f"Found hosts/{host}/configuration.nix")
 
     def validate_nix_syntax(self):
         """Check Nix syntax for all .nix files in the project directory only."""
@@ -108,15 +123,16 @@ class ConfigValidator:
                 
             outputs = json.loads(result.stdout)
             
-            # Check required nixosConfigurations exist
-            required_configs = ["thinker", "1337book", "work-wsl"]
             nixos_configs = outputs.get("nixosConfigurations", {})
-            
-            for config in required_configs:
-                if config in nixos_configs:
-                    self.success(f"Found nixosConfiguration: {config}")
-                else:
-                    self.error(f"Missing nixosConfiguration: {config}")
+
+            if not self.hosts:
+                self.warning("No host folders detected; skipping nixosConfiguration checks")
+            else:
+                for host in self.hosts:
+                    if host in nixos_configs:
+                        self.success(f"Found nixosConfiguration: {host}")
+                    else:
+                        self.error(f"Missing nixosConfiguration: {host}")
                     
         except (subprocess.SubprocessError, json.JSONDecodeError) as e:
             self.error(f"Failed to validate flake outputs: {e}")
@@ -130,7 +146,7 @@ class ConfigValidator:
         
         # Check that work-wsl doesn't include gaming packages
         work_config = self.root / "hosts/work-wsl/configuration.nix"
-        if work_config.exists():
+        if "work-wsl" in self.hosts and work_config.exists():
             content = work_config.read_text()
             for package in gaming_packages:
                 if package in content:
@@ -140,16 +156,13 @@ class ConfigValidator:
                 self.error("work-wsl config imports gaming.nix - this defeats the purpose!")
             else:
                 self.success("work-wsl properly excludes gaming module")
+        elif "work-wsl" in self.hosts:
+            self.error("Expected work-wsl configuration file is missing during gaming separation check")
 
     def validate_common_imports(self):
         """Check that all hosts import base configuration."""
-        configs = [
-            "hosts/thinker/configuration.nix",
-            "hosts/1337book/configuration.nix",
-            "hosts/work-wsl/configuration.nix"
-        ]
-        
-        for config_path in configs:
+        for host in self.hosts:
+            config_path = f"hosts/{host}/configuration.nix"
             config = self.root / config_path
             if config.exists():
                 content = config.read_text()
@@ -157,6 +170,8 @@ class ConfigValidator:
                     self.success(f"{config_path} imports base module")
                 else:
                     self.error(f"{config_path} missing base module import")
+            else:
+                self.error(f"{config_path} missing for base module validation")
 
     def validate_rebuild_script(self):
         """Check rebuild script functionality."""

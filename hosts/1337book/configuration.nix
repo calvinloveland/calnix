@@ -10,6 +10,7 @@
     ../../modules/base.nix
     ../../modules/desktop.nix
     ../../modules/gaming.nix
+    ../../modules/openvino.nix
     ../../homely-man.nix
     ../../python-dev.nix
   ];
@@ -43,5 +44,7 @@
   # File manager support services
   services.gvfs.enable = true; # Trash, network shares, MTP
   security.polkit.enable = true; # Polkit backend; agent started via Home Manager
+
+  calnix.openvino.enable = true;
 
 }

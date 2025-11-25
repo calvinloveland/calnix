@@ -148,6 +148,14 @@ The script detects your environment using:
 - **Tools**: Fish shell, Neovim, essential CLI utilities
 - **Base System**: Common NixOS configuration
 
+### Intel NPU / OpenVINO (1337book focus)
+- **Reproducible Toolkit**: `nix develop` now unpacks Intel OpenVINO 2024.6 with the Intel NPU plugin pre-configured.
+- **Environment Wiring**: Shell hook exports `INTEL_OPENVINO_DIR`, `IE_PLUGINS_PATH`, `LD_LIBRARY_PATH`, `PKG_CONFIG_PATH`, `PYTHONPATH`, and `INTEL_NPU_DEVICE` for immediate use.
+- **Sanity Checks**: Startup script runs `openvino.runtime.Core().available_devices` and aborts if the NPU is missing (use `CALNIX_SKIP_NPU_CHECK=1` to bypass on unsupported hosts/CI).
+- **Driver Helper**: `intel-npu-driver-helper --install|--status|--uninstall` wraps Intel's `linux-npu-driver` repo so kernel modules stay in sync after updates.
+- **Extra Docs**: See `docs/npu-support.md` for setup notes, verification steps, and troubleshooting tips.
+- **System-Wide Runtime**: On 1337book the OpenVINO 2024.6 runtime is installed globally; login shells automatically export the same variables as the dev shell so `python3 -c 'from openvino.runtime import Core'` works anywhere.
+
 ### Desktop Hosts (Thinker & 1337book)
 - **Gaming**: Steam, Blender, Krita, Aseprite, Dwarf Fortress
 - **Desktop**: Sway, Bluetooth, audio (PipeWire), power management
