@@ -18,6 +18,8 @@ in
       openvinoPythonDir = "${openvinoRuntime}/python";
       openvinoTbbDir = "${openvinoRuntime}/runtime/3rdparty/tbb/lib";
       openvinoHddlDir = "${openvinoRuntime}/runtime/3rdparty/hddl/lib";
+      levelZero = pkgs.level-zero;
+      levelZeroLibDir = "${levelZero}/lib";
       openvinoShareDir = "${openvinoRuntime}/runtime/share";
       toolchainLibDir = "${pkgs.stdenv.cc.cc.lib}/lib";
       posixProfile = ''
@@ -71,6 +73,7 @@ _calnix_openvino_prepend_python() {
 _calnix_openvino_prepend_ldpath ${openvinoLibDir}
 _calnix_openvino_prepend_ldpath ${openvinoTbbDir}
 _calnix_openvino_prepend_ldpath ${openvinoHddlDir}
+_calnix_openvino_prepend_ldpath ${levelZeroLibDir}
 _calnix_openvino_prepend_ldpath ${toolchainLibDir}
 _calnix_openvino_prepend_pkgconfig ${openvinoPkgConfigDir}
 _calnix_openvino_prepend_python ${openvinoPythonDir}
@@ -139,6 +142,7 @@ end
 __calnix_openvino_prepend_ldpath ${openvinoLibDir}
 __calnix_openvino_prepend_ldpath ${openvinoTbbDir}
 __calnix_openvino_prepend_ldpath ${openvinoHddlDir}
+__calnix_openvino_prepend_ldpath ${levelZeroLibDir}
 __calnix_openvino_prepend_ldpath ${toolchainLibDir}
 __calnix_openvino_prepend_pkgconfig ${openvinoPkgConfigDir}
 __calnix_openvino_prepend_python ${openvinoPythonDir}
@@ -156,7 +160,7 @@ functions -e __calnix_openvino_prepend_python
 '';
     in
     {
-      environment.systemPackages = [ openvinoRuntime ];
+      environment.systemPackages = [ openvinoRuntime levelZero ];
       environment.loginShellInit = mkAfter posixProfile;
       programs.fish.shellInit = mkAfter fishProfile;
     }

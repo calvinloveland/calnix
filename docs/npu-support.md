@@ -22,6 +22,7 @@ The `1337book` host enables `calnix.openvino.enable = true`, which installs the 
 - `python3 -c "from openvino.runtime import Core; print(Core().available_devices)"` works in any shell without `nix develop`.
 - `INTEL_OPENVINO_DIR`, `IE_PLUGINS_PATH`, `INTEL_NPU_DEVICE`, `PYTHONPATH`, `PKG_CONFIG_PATH`, and `LD_LIBRARY_PATH` are exported automatically for every login.
 - `INTEL_NPU_HOME` is populated under each user’s `~/.intel_npu` with symlinks to the runtime libraries/share tree.
+- `LD_LIBRARY_PATH` also prepends the nixpkgs `level-zero` loader (installed under `/nix/store/*-level-zero-*/lib`), guaranteeing that `libze_loader.so.1` matches the rest of the OpenVINO 2024.6 stack even if the base OS does not ship Intel’s loader.
 
 If you want to disable the automatic wiring temporarily, unset `calnix.openvino.enable` for your host and rebuild.
 
@@ -71,6 +72,17 @@ If the assertion fails, double-check that:
 1. `intel-npu-driver-helper --install` completed successfully and the `xe` / `intel_npu` modules are loaded (`lsmod | grep -E '^(xe|intel_npu)'`).
 2. Firmware is up to date via `fwupdmgr` (already enabled for 1337book).
 3. You are not intentionally skipping the probe via `CALNIX_SKIP_NPU_CHECK`.
+
+## Handling `ZE_RESULT_ERROR_UNSUPPORTED_FEATURE`
+
+This Level Zero error always originates inside the Intel NPU runtime when the plugin attempts to compile a graph. Swapping ML frontends (Keras, PyTorch, ONNX, raw IR) does not change that code path, so the failure must be resolved at the driver/runtime layer. Work through the following before blaming the higher-level framework:
+
+1. **Match toolkit + firmware** – Install the NPU-enabled OpenVINO bundle (see the download instructions in the repo root) and re-run `sudo ./drivers/setup.sh install` from that bundle *after* every kernel upgrade. A reboot is required once the installer updates `xe`/`intel_npu`.
+2. **Verify Level Zero visibility** – Run `sycl-ls` and `oneapi-cli --list` from `${INTEL_OPENVINO_DIR}/runtime/bin/intel64/Release`. Both tools must list the NPU alongside the CPU; if they do not, Level Zero cannot discover the device and the plugin will raise the same error for all models. The shell profile always prepends the nixpkgs `level-zero` library path to `LD_LIBRARY_PATH`, so `libze_loader.so.1` is present even on hosts that do not ship Intel’s loader out of the box.
+3. **Confirm environment wiring** – `calnix.openvino.enable = true;` populates `/etc/profile.d/openvino.sh` and the fish equivalent, exporting `INTEL_OPENVINO_DIR`, `LD_LIBRARY_PATH`, `PKG_CONFIG_PATH`, `PYTHONPATH`, and `IE_PLUGINS_PATH`. Ensure you are in a login shell (or `nix develop`) so these variables are present before running `benchmark_app` or `core.compile_model(..., 'NPU')`.
+4. **Run a minimal OpenVINO sample** – Use `benchmark_app -m $INTEL_OPENVINO_DIR/models/ir/public/squeezenet1.1/FP16/squeezenet1.1.xml -d NPU`. Success here proves the runtime stack works; only then will higher-level frameworks (Keras, PyTorch, MancalaAI) succeed because they ultimately call the same `Core.compile_model(..., "NPU")` entry point.
+
+Once the sample graph compiles on the NPU, re-run MancalaAI. The device list should show `['CPU', 'NPU']`, and `core.compile_model(..., 'NPU')` will reuse the trusted runtime without triggering `ZE_RESULT_ERROR_UNSUPPORTED_FEATURE`.
 
 ## Troubleshooting Tips
 

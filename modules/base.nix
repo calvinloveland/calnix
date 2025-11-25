@@ -101,6 +101,7 @@ in
     gnutar
     gawk
     zstd
+    zlib
     gnupg
 
     # System monitoring

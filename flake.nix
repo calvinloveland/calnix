@@ -72,14 +72,16 @@
             mkdir -p $out
             tar --strip-components=1 -xzf ${openvinoSrc} -C $out
           '';
+          levelZero = pkgsFor.level-zero;
         in
         {
-          inherit pkgsFor openvinoRuntime;
+          inherit pkgsFor openvinoRuntime levelZero;
           openvinoLibDir = "${openvinoRuntime}/runtime/lib/intel64";
           openvinoPkgConfigDir = "${openvinoRuntime}/runtime/lib/pkgconfig";
           openvinoPythonDir = "${openvinoRuntime}/python";
           openvinoTbbDir = "${openvinoRuntime}/runtime/3rdparty/tbb/lib";
           openvinoHddlDir = "${openvinoRuntime}/runtime/3rdparty/hddl/lib";
+          levelZeroLibDir = "${levelZero}/lib";
           toolchainLibDir = "${pkgsFor.stdenv.cc.cc.lib}/lib";
         }
       );
@@ -101,7 +103,7 @@
               git
               cmake
               pkg-config
-            ];
+            ] ++ [ openvinoCtx.levelZero ];
 
             shellHook = ''
               set -euo pipefail
@@ -129,6 +131,7 @@
               _calnix_prepend_path LD_LIBRARY_PATH ${openvinoCtx.openvinoLibDir}
               _calnix_prepend_path LD_LIBRARY_PATH ${openvinoCtx.openvinoTbbDir}
               _calnix_prepend_path LD_LIBRARY_PATH ${openvinoCtx.openvinoHddlDir}
+              _calnix_prepend_path LD_LIBRARY_PATH ${openvinoCtx.levelZeroLibDir}
               _calnix_prepend_path LD_LIBRARY_PATH ${openvinoCtx.toolchainLibDir}
               _calnix_prepend_path LD_LIBRARY_PATH /usr/local/lib64
               _calnix_prepend_path LD_LIBRARY_PATH /usr/local/lib
