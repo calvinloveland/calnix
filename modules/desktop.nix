@@ -56,10 +56,12 @@
     google-chrome # Google has their hooks in me
     fortune-kind # good fortunes
     libreoffice # Office suite for documents, spreadsheets, presentations
-  chirp # Radio programming tool
-  (handbrake.override { useGtk = true; }) # HandBrake GUI build
-  (writeShellScriptBin "handbrake" ''exec ${handbrake}/bin/ghb "$@"'') # Friendly GUI launcher
-  kdePackages.k3b # KDE disc burning suite
+    naps2 # Document scanning workflow
+    chirp # Radio programming tool
+    (handbrake.override { useGtk = true; }) # HandBrake GUI build
+    (writeShellScriptBin "handbrake" ''exec ${handbrake}/bin/ghb "$@"'') # Friendly GUI launcher
+    kdePackages.k3b # KDE disc burning suite
+    sane-backends # CLI tools for verifying scanner access
 
     # Video editing and media
     vlc # Video player and basic editing
@@ -82,7 +84,28 @@
       };
     };
   };
-  
+  # Scanner support for USB/Wi-Fi devices such as the Epson ET-2850
+  hardware.sane = {
+    enable = true;
+    extraBackends = with pkgs; [
+      epkowa # Legacy Epson backend covering ET-2850 USB
+      epsonscan2 # Epson Scan 2 for newer multifunction devices
+      sane-airscan # AirScan/eSCL for network discovery
+    ];
+  };
+  services.udev.packages = with pkgs; [ epkowa epsonscan2 ];
+  environment.etc."sane.d/dll.conf".text =
+    let
+      baseDllConf = builtins.readFile "${pkgs.sane-backends}/etc/sane.d/dll.conf";
+    in
+    baseDllConf + ''
+epkowa
+epsonscan2
+airscan
+'';
+  environment.sessionVariables.SANE_CONFIG_DIR =
+    lib.mkForce "/etc/sane.d:${pkgs.sane-backends}/etc/sane.d";
+
 
   # Common desktop services
   services.blueman.enable = true;

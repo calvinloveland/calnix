@@ -153,7 +153,9 @@ in
       "wheel"
       "networkmanager"
       "video"
+      "render"
       "dialout" # Serial/USB programming (e.g. radios)
+      "scanner" # Access to SANE scanner devices
     ];
     shell = pkgs.fish;
   };
