@@ -29,6 +29,7 @@
         pkgs.atool
         pkgs.httpie
         pkgs.brightnessctl
+        pkgs.fuzzel # Wayland app launcher (used for panic recovery menu)
         # Browsers
         pkgs.google-chrome
         # Fonts
@@ -254,6 +255,9 @@
 
             # Alternative: choose wallpaper with file picker
             "${modifier}+Shift+w" = "exec ~/.config/sway/choose-wallpaper.sh";
+
+            # PANIC! Recovery menu for when things go wrong (focus issues, etc.)
+            "${modifier}+p" = "exec ~/.config/sway/panic.sh";
           };
 
           startup = [
@@ -777,6 +781,49 @@
                 ${pkgs.brightnessctl}/bin/brightnessctl set "''${step}-" \
                   || ${pkgs.brightnessctl}/bin/brightnessctl -d intel_backlight set "''${step}-" \
                   || ${pkgs.brightnessctl}/bin/brightnessctl -d amdgpu_bl0 set "''${step}-" ;;
+            esac
+          '';
+          executable = true;
+        };
+
+        # PANIC! Recovery script - Mod+p to access when things go wrong
+        ".config/sway/panic.sh" = {
+          text = ''
+            #!${pkgs.bash}/bin/bash
+            # PANIC RECOVERY MENU
+            # Use this when focus/input issues occur
+            
+            OPTIONS="🔄 Reload Sway Config\n🖱️ Reset Input Devices\n🪟 Kill Focused Window\n🔃 Restart Waybar\n🚪 Logout (restart Sway)\n❌ Cancel"
+            
+            CHOICE=$(echo -e "$OPTIONS" | ${pkgs.fuzzel}/bin/fuzzel --dmenu --prompt "PANIC RECOVERY: ")
+            
+            case "$CHOICE" in
+              "🔄 Reload Sway Config")
+                swaymsg reload
+                notify-send "Sway" "Configuration reloaded"
+                ;;
+              "🖱️ Reset Input Devices")
+                # Re-enable all input devices
+                swaymsg 'input type:touchpad events enabled'
+                swaymsg 'input type:pointer events enabled'
+                swaymsg 'input type:keyboard events enabled'
+                # Reset seat
+                swaymsg 'seat - cursor move 0 0'
+                notify-send "Sway" "Input devices reset"
+                ;;
+              "🪟 Kill Focused Window")
+                swaymsg kill
+                ;;
+              "🔃 Restart Waybar")
+                systemctl --user restart waybar
+                notify-send "Sway" "Waybar restarted"
+                ;;
+              "🚪 Logout (restart Sway)")
+                swaymsg exit
+                ;;
+              *)
+                # Cancelled or unknown
+                ;;
             esac
           '';
           executable = true;
