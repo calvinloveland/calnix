@@ -112,6 +112,46 @@
 
       programs.swaylock.enable = true;
 
+      # Mako notification daemon configuration
+      services.mako = {
+        enable = true;
+        settings = {
+          default-timeout = 5000; # Notifications auto-dismiss after 5 seconds
+          ignore-timeout = false;
+          font = "FiraCode Nerd Font Mono 11";
+          background-color = "#1e1e2eee";
+          text-color = "#cdd6f4";
+          border-color = "#89b4fa";
+          border-radius = 8;
+          border-size = 2;
+          padding = "12";
+          margin = "12";
+          width = 350;
+          height = 150;
+          icons = true;
+          max-icon-size = 48;
+          layer = "overlay";
+          anchor = "top-right";
+        };
+        extraConfig = ''
+          [urgency=low]
+          background-color=#1e1e2ecc
+          border-color=#6c7086
+          default-timeout=3000
+
+          [urgency=normal]
+          background-color=#1e1e2eee
+          border-color=#89b4fa
+          default-timeout=5000
+
+          [urgency=critical]
+          background-color=#f38ba8ee
+          border-color=#f38ba8
+          text-color=#1e1e2e
+          default-timeout=0
+        '';
+      };
+
       # Configure Kitty terminal with proper fonts and pywal colors
       programs.kitty = {
         enable = true;
@@ -470,68 +510,91 @@
           };
         };
 
-        # Softer, semi-transparent styling with higher contrast
+        # Modern dark theme - GTK CSS compatible
         style = ''
-          /* Softer, semi-transparent styling with higher contrast */
-          
-          /* Palette (light background, dark text) */
-          @define-color background rgba(248, 250, 252, 0.92);
-          @define-color foreground #111827;
-          @define-color accent #8aadf4;
+          /* Catppuccin Mocha-inspired palette */
+          @define-color background rgba(30, 30, 46, 0.85);
+          @define-color foreground #cdd6f4;
+          @define-color accent #89b4fa;
+          @define-color accentAlt #b4befe;
+          @define-color success #a6e3a1;
           @define-color warning #f9e2af;
           @define-color danger #f38ba8;
-          @define-color muted #6b7280;
-          @define-color surface rgba(0, 0, 0, 0.05);
-          @define-color surfaceHover rgba(0, 0, 0, 0.08);
-          @define-color border rgba(0, 0, 0, 0.20);
+          @define-color muted #6c7086;
+          @define-color surface rgba(49, 50, 68, 0.6);
+          @define-color surfaceHover rgba(69, 71, 90, 0.8);
+          @define-color borderColor rgba(137, 180, 250, 0.3);
 
           * {
             font-family: "FiraCode Nerd Font Mono", "Fira Code", "DejaVu Sans Mono", "Noto Color Emoji";
             font-size: 13px;
+            border: none;
+            border-radius: 0;
+            min-height: 0;
           }
 
-          /* Improve label legibility and spacing */
           label {
             color: @foreground;
             padding: 0;
             margin: 0;
-            letter-spacing: 0;
             font-weight: 500;
           }
 
           window#waybar {
             background-color: @background;
             color: @foreground;
-            border-bottom: 1px solid @border;
+            border-bottom: 1px solid @borderColor;
           }
 
-          /* Workspaces */
-          #workspaces { margin: 0 4px; }
+          /* Workspaces - pill-style buttons */
+          #workspaces {
+            margin: 4px 8px;
+            padding: 0;
+            background: @surface;
+            border-radius: 12px;
+          }
           #workspaces button {
-            padding: 0 8px;
-            margin: 6px 2px;
-            border-radius: 8px;
-            color: @foreground;
+            padding: 4px 12px;
+            margin: 4px 2px;
+            border-radius: 10px;
+            color: @muted;
             background: transparent;
-            border: 1px solid transparent;
-            transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+            font-weight: 600;
           }
           #workspaces button:hover {
             background: @surfaceHover;
-            border-color: @border;
-          }
-          #workspaces button.focused {
-            background: @surfaceHover;
-            border-color: @border;
             color: @foreground;
           }
+          #workspaces button.focused {
+            background: rgba(137, 180, 250, 0.3);
+            color: @accent;
+            border: 1px solid @accent;
+          }
           #workspaces button.urgent {
-            background: rgba(243, 139, 168, 0.45);
+            background: rgba(243, 139, 168, 0.6);
             color: #ffffff;
-            border-color: rgba(243, 139, 168, 0.6);
+            border: 2px solid @danger;
+            font-weight: 700;
           }
 
-          /* Unified underline-accent style for all modules */
+          /* Sway mode indicator */
+          #mode {
+            background: @danger;
+            color: #1e1e2e;
+            padding: 4px 12px;
+            margin: 4px;
+            border-radius: 8px;
+            font-weight: 700;
+          }
+
+          /* Window title */
+          #window {
+            color: @foreground;
+            font-weight: 500;
+            padding: 0 16px;
+          }
+
+          /* Unified pill-style modules */
           #cpu, #memory, #disk,
           #custom-temperature, #temperature,
           #battery,
@@ -540,45 +603,113 @@
           #backlight,
           #custom-weather,
           #clock,
-          #custom-media,
+          #custom-media {
+            background: @surface;
+            color: @foreground;
+            padding: 4px 12px;
+            margin: 4px 3px;
+            border-radius: 10px;
+            font-weight: 500;
+          }
+
+          /* Hover effect for all modules */
+          #cpu:hover, #memory:hover, #disk:hover,
+          #custom-temperature:hover, #temperature:hover,
+          #battery:hover,
+          #network:hover,
+          #pulseaudio:hover,
+          #backlight:hover,
+          #custom-weather:hover,
+          #clock:hover,
+          #custom-media:hover {
+            background: @surfaceHover;
+          }
+
+          /* System tray */
           #tray {
-            background: transparent;
-            color: @foreground;
-            padding: 0 10px;
-            margin: 8px 6px 4px 6px;
-            border: none;
-            border-bottom: 2px solid @accent;
-            border-radius: 0;
+            background: @surface;
+            padding: 4px 8px;
+            margin: 4px 8px 4px 3px;
+            border-radius: 10px;
+          }
+          #tray > .passive { opacity: 0.6; }
+          #tray > .active { background: transparent; }
+          #tray > .needs-attention {
+            background: @warning;
+            border-radius: 8px;
           }
 
-          /* Strong override so digits never look grey (no !important for GTK) */
-          window#waybar label,
-          window#waybar label *,
-          window#waybar .label,
-          window#waybar .text,
-          window#waybar .value {
-            color: @foreground;
-            opacity: 1;
+          /* Module-specific accent colors */
+          #cpu { border-left: 3px solid @accent; }
+          #memory { border-left: 3px solid @accentAlt; }
+          #disk { border-left: 3px solid #cba6f7; }
+          #custom-temperature, #temperature { border-left: 3px solid #fab387; }
+          #pulseaudio { border-left: 3px solid #f5c2e7; }
+          #backlight { border-left: 3px solid @warning; }
+          #custom-weather { border-left: 3px solid #94e2d5; }
+          #clock { border-left: 3px solid @success; }
+
+          /* Battery states */
+          #battery {
+            border-left: 3px solid @success;
+          }
+          #battery.charging {
+            background: rgba(166, 227, 161, 0.3);
+            border-left-color: @success;
+          }
+          #battery.warning:not(.charging) {
+            background: rgba(249, 226, 175, 0.3);
+            border-left-color: @warning;
+            color: @warning;
+          }
+          #battery.critical:not(.charging) {
+            background: rgba(243, 139, 168, 0.5);
+            border-left: 3px solid #ff6b8a;
+            border-right: 3px solid #ff6b8a;
+            color: #ffffff;
+            font-weight: 700;
           }
 
-          /* Global default for everything inside Waybar */
-          window#waybar, window#waybar * {
-            color: @foreground;
-            opacity: 1;
+          /* Network states */
+          #network.wifi {
+            border-left: 3px solid @success;
+          }
+          #network.ethernet {
+            border-left: 3px solid @accent;
+          }
+          #network.disconnected {
+            background: rgba(243, 139, 168, 0.3);
+            border-left: 3px solid @danger;
+            color: @danger;
+            font-weight: 600;
           }
 
-          /* State-based accents aligned with underline style */
-          #pulseaudio.muted, #pulseaudio.muted * { color: @muted; }
-          #custom-media.paused, #custom-media.paused * { color: @muted; }
+          /* Audio states */
+          #pulseaudio.muted {
+            background: @surface;
+            color: @muted;
+            opacity: 0.7;
+          }
 
-          #battery.charging { border-bottom-color: rgba(138, 173, 244, 0.8); }
-          #battery.warning:not(.charging) { border-bottom-color: @warning; }
-          #battery.critical:not(.charging) { border-bottom-color: @danger; }
+          /* Media player states */
+          #custom-media {
+            border-left: 3px solid #f5c2e7;
+          }
+          #custom-media.playing {
+            background: rgba(245, 194, 231, 0.2);
+          }
+          #custom-media.paused {
+            color: @muted;
+            opacity: 0.8;
+          }
 
-          #network.disconnected { border-bottom-color: @danger; font-weight: 600; }
-
-          #custom-media.playing { border-bottom-color: @accent; }
-          #custom-media.paused { border-bottom-color: @border; }
+          /* Temperature warning states */
+          #custom-temperature.critical, #temperature.critical {
+            background: rgba(243, 139, 168, 0.5);
+            color: #ffffff;
+            border-left: 3px solid #ff6b8a;
+            font-weight: 700;
+          }
         '';
       };
 
